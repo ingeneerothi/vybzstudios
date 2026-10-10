@@ -2,6 +2,7 @@ import React from "react";
 import {
   AbsoluteFill,
   Easing,
+  Freeze,
   Img,
   OffthreadVideo,
   interpolate,
@@ -57,6 +58,7 @@ export const Hook: React.FC = () => {
           fontSize: 100,
           lineHeight: 1.1,
           letterSpacing: "-0.03em",
+          wordSpacing: "0.08em",
           color: C.ink,
           textAlign: "center",
           marginTop: -80,
@@ -78,7 +80,8 @@ export const Hook: React.FC = () => {
                     style={{
                       display: "inline-block",
                       opacity: frame >= appearAt[li][wi] ? 1 : 0,
-                      transform: `translateY(${(1 - s) * 26}px) scale(${0.7 + 0.3 * s})`,
+                      // Clamped so the spring overshoot never grows a word over its spaces.
+                      transform: `translateY(${(1 - s) * 26}px) scale(${Math.min(1, 0.7 + 0.3 * s)})`,
                       ...(isMarque
                         ? {
                             backgroundImage: `linear-gradient(${C.yellow}, ${C.yellow})`,
@@ -160,7 +163,9 @@ export const BadAd: React.FC = () => {
 };
 
 // 3. Reaction (7.7 - 10 s): the clip in full, then its last frame held with a
-// slow push-in.
+// slow push-in. The hold freezes the video itself (not a PNG still) so the
+// frame keeps exactly the same colours.
+const LAST_FRAME = REACTION_PLAY - 1;
 export const Reaction: React.FC = () => {
   const frame = useCurrentFrame();
   const held = frame >= REACTION_PLAY;
@@ -188,7 +193,13 @@ export const Reaction: React.FC = () => {
         aspect={480 / 544}
         background={
           held ? (
-            <Img src={media("reaction-bg-last.png")} style={cover} />
+            <Freeze frame={LAST_FRAME}>
+              <OffthreadVideo
+                src={media("reaction-bg.mp4")}
+                muted
+                style={cover}
+              />
+            </Freeze>
           ) : (
             <OffthreadVideo
               src={media("reaction-bg.mp4")}
@@ -199,15 +210,18 @@ export const Reaction: React.FC = () => {
         }
       >
         {held ? (
-          <Img
-            src={media("reaction-last.png")}
-            style={{ ...fill, transform: `scale(${push})` }}
-          />
+          <Freeze frame={LAST_FRAME}>
+            <OffthreadVideo
+              src={media("reaction.mp4")}
+              muted
+              style={{ ...fill, transform: `scale(${push})` }}
+            />
+          </Freeze>
         ) : (
           <OffthreadVideo
             src={media("reaction.mp4")}
             style={fill}
-            // 3-frame fade so the sound does not stop dead at the cut.
+            // Short fade so the sound does not stop dead at the cut.
             volume={(f) =>
               interpolate(
                 f,

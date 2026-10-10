@@ -23,10 +23,7 @@ ffmpeg -v error -y -i "$CEMENT" -vf "crop=560:436:0:422,scale=-2:520,crop=480:52
 
 # 2. Reaction: loud source (-6 LUFS, clipping) brought down to ~-14 LUFS.
 ffmpeg -v error -y -i "$REACTION" -vf "scale=1760:1996:flags=lanczos" -af "volume=-8dB" $V -c:a aac -b:a 192k "$OUT/reaction.mp4"
-# The held image must be the very last frame: -update 1 overwrites it frame by frame.
-ffmpeg -v error -y -i "$REACTION" -vf "scale=1760:1996:flags=lanczos" -update 1 "$OUT/reaction-last.png"
 ffmpeg -v error -y -i "$REACTION" -vf "scale=480:-2,crop=480:520,$BLUR" $BG "$OUT/reaction-bg.mp4"
-ffmpeg -v error -y -i "$REACTION" -vf "scale=480:-2,crop=480:520,$BLUR" -update 1 "$OUT/reaction-bg-last.png"
 
 # 3. Girl: -11 LUFS -> ~-14 LUFS.
 ffmpeg -v error -y -i "$GIRL" -vf "scale=1760:1706:flags=lanczos" -af "volume=-3dB" $V -c:a aac -b:a 192k "$OUT/girl.mp4"

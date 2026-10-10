@@ -117,7 +117,9 @@ export const ShakyText: React.FC<{
       style={{
         ...blockStyle(size, weight, color, lineHeight, "center"),
         opacity: f >= 0 ? 1 : 0,
-        transform: `translateX(${tearX}px) skewX(${skew}deg) scale(${interpolate(enter, [0, 1], [1.12, 1])})`,
+        // Staggered words get their own slam, so the block itself does not
+        // punch in (the two together pushed wide lines out of the frame).
+        transform: `translateX(${tearX}px) skewX(${skew}deg) scale(${stagger > 0 ? 1 : interpolate(enter, [0, 1], [1.12, 1])})`,
         textShadow: `${-split}px 0 rgba(229,37,27,0.55), ${split}px 0 rgba(0,170,255,0.45)`,
         ...style,
       }}
@@ -150,7 +152,7 @@ export const ShakyText: React.FC<{
               opacity: f >= at ? 1 : 0,
               transform:
                 stagger > 0
-                  ? `scale(${interpolate(slam, [0, 1], [1.5, 1])})`
+                  ? `scale(${interpolate(slam, [0, 1], [1.25, 1])})`
                   : undefined,
             }}
           >
