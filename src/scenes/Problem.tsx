@@ -122,7 +122,7 @@ const BAD_AD_CAPTION: Seg[] = [
 // First glitch burst of the caption (for the sound design).
 export const BAD_AD_GLITCH = 26;
 // Frame of the scene where the cement clip cuts to its white end card.
-export const CEMENT_END_CARD = 290;
+export const CEMENT_END_CARD = 284;
 
 export const BadAd: React.FC = () => (
   <AbsoluteFill>
@@ -144,6 +144,8 @@ export const Reaction: React.FC = () => {
       {held ? (
         <AbsoluteFill
           style={{
+            // Punch toward the man's face (top centre of the reframed clip).
+            transformOrigin: "47% 16%",
             transform: `scale(${1 + 0.2 * punch}) rotate(${-1.6 * punch}deg)`,
             filter: `saturate(${1 - 0.25 * punch}) contrast(${1 + 0.08 * punch})`,
           }}
@@ -177,6 +179,8 @@ export const Reaction: React.FC = () => {
         tone="clean"
         seed="reaction"
         delay={-2}
+        // His face is at the top of the frame: the caption sits low.
+        top={1270}
         segments={[
           { text: "Tes clients quand ils voient " },
           { text: "ta pub :", color: C.red, nowrap: true },

@@ -2,30 +2,31 @@ import React from "react";
 import { Html5Audio, Sequence, staticFile } from "remotion";
 import { FPS } from "../timing";
 
-// Sound-effect kit (public/sfx, made by scripts/make-sfx.py).
-// `peak` is where the main hit sits inside the file (seconds), so a sound can
-// be placed by its peak; `volume` is its level in the mix.
+// Sound-effect kit (public/sfx, made by scripts/make-sfx.py, balanced by
+// loudness). `peak` is where the main hit sits inside the file (seconds), so
+// a sound can be placed by its peak; `volume` is its base level in the mix
+// (each cue scales it with `gain`).
 export const SFX = {
-  "whoosh-in": { peak: 0.65, length: 0.95, volume: 0.55 },
-  "whoosh-out": { peak: 0.12, length: 0.65, volume: 0.5 },
-  swish: { peak: 0.06, length: 0.3, volume: 0.45 },
-  "sub-hit": { peak: 0.0, length: 1.25, volume: 0.7 },
-  "boom-meme": { peak: 0.0, length: 1.65, volume: 0.75 },
-  tap: { peak: 0.0, length: 0.06, volume: 0.6 },
-  "key-0": { peak: 0.0, length: 0.05, volume: 0.45 },
-  "key-1": { peak: 0.0, length: 0.05, volume: 0.45 },
-  "key-2": { peak: 0.0, length: 0.05, volume: 0.45 },
-  "key-3": { peak: 0.0, length: 0.05, volume: 0.45 },
-  "key-return": { peak: 0.0, length: 0.08, volume: 0.55 },
-  "pop-0": { peak: 0.0, length: 0.12, volume: 0.45 },
-  "pop-1": { peak: 0.0, length: 0.12, volume: 0.45 },
-  "pop-2": { peak: 0.0, length: 0.12, volume: 0.45 },
-  ding: { peak: 0.0, length: 0.95, volume: 0.45 },
-  success: { peak: 0.0, length: 1.45, volume: 0.5 },
-  shimmer: { peak: 0.2, length: 1.05, volume: 0.35 },
-  error: { peak: 0.0, length: 0.55, volume: 0.5 },
-  glitch: { peak: 0.0, length: 0.45, volume: 0.4 },
-  cash: { peak: 0.05, length: 0.95, volume: 0.55 },
+  "whoosh-in": { peak: 0.65, length: 0.95, volume: 0.78 },
+  "whoosh-out": { peak: 0.12, length: 0.62, volume: 0.78 },
+  swish: { peak: 0.08, length: 0.26, volume: 0.78 },
+  "sub-hit": { peak: 0.0, length: 1.25, volume: 0.78 },
+  "boom-meme": { peak: 0.0, length: 1.65, volume: 0.78 },
+  tap: { peak: 0.0, length: 0.05, volume: 0.8 },
+  "key-0": { peak: 0.0, length: 0.05, volume: 0.78 },
+  "key-1": { peak: 0.0, length: 0.05, volume: 0.79 },
+  "key-2": { peak: 0.0, length: 0.05, volume: 0.83 },
+  "key-3": { peak: 0.0, length: 0.05, volume: 0.81 },
+  "key-return": { peak: 0.0, length: 0.08, volume: 0.78 },
+  "pop-0": { peak: 0.0, length: 0.16, volume: 0.78 },
+  "pop-1": { peak: 0.0, length: 0.16, volume: 0.78 },
+  "pop-2": { peak: 0.0, length: 0.16, volume: 0.78 },
+  ding: { peak: 0.0, length: 0.9, volume: 0.78 },
+  success: { peak: 0.2, length: 1.45, volume: 0.78 },
+  shimmer: { peak: 0.23, length: 1.0, volume: 0.78 },
+  error: { peak: 0.0, length: 0.5, volume: 0.78 },
+  glitch: { peak: 0.0, length: 0.42, volume: 0.78 },
+  cash: { peak: 0.05, length: 0.9, volume: 0.78 },
 } as const;
 
 export type SfxName = keyof typeof SFX;

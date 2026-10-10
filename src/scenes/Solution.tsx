@@ -311,6 +311,8 @@ export const Relief: React.FC = () => (
       tone="clean"
       seed="relief"
       delay={-2}
+      // Her face fills the middle of the frame: the caption sits low.
+      top={1240}
       size={66}
       segments={[
         { text: "Les vendeurs qui ont enfin trouvé " },
