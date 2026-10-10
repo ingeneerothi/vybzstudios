@@ -4,6 +4,7 @@ Publicité motion design de Vybz Studios, faite avec [Remotion](https://www.remo
 
 - Composition `VybzAd` : 37 s, 1080x1920 (vertical), 60 images/s.
 - Rendu final en 4K (2160x3840) avec `--scale=2`.
+- Les vidéos finales à télécharger sont dans [`rendu/`](rendu/).
 
 ## Commandes
 
@@ -11,6 +12,16 @@ Publicité motion design de Vybz Studios, faite avec [Remotion](https://www.remo
 npm install
 npm run dev                      # Remotion Studio : aperçu et réglages
 npx remotion render VybzAd out/vybz-studios-pub-4k.mp4 --scale=2 --crf=17
+```
+
+Version galerie (H.265, format natif des téléphones), à partir du rendu 4K :
+
+```bash
+ffmpeg -i out/vybz-studios-pub-4k.mp4 -c:v libx265 -preset medium -crf 20 -pix_fmt yuv420p \
+  -profile:v main -tag:v hvc1 \
+  -x265-params "level-idc=5.1:vbv-maxrate=30000:vbv-bufsize=60000:colorprim=bt709:transfer=bt709:colormatrix=bt709:range=limited" \
+  -color_primaries bt709 -color_trc bt709 -colorspace bt709 -color_range tv \
+  -c:a copy -movflags +faststart rendu/vybz-studios-pub-4k-galerie.mp4
 ```
 
 ## Structure
