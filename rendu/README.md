@@ -1,11 +1,11 @@
 # Pub Vybz Studios : vidéos finales
 
-Les deux fichiers sont en 4K vertical (2160×3840), 60 images/s, 37 s, avec le son.
+Version 2. Les deux fichiers sont en 4K vertical (2160×3840), 60 images/s, 39,7 s, avec le son.
 
 | Fichier | À utiliser pour | Taille |
 | --- | --- | --- |
-| [vybz-studios-pub-4k-galerie.mp4](vybz-studios-pub-4k-galerie.mp4?raw=true) | L'enregistrer dans la galerie du téléphone. Format H.265, le même que les vidéos filmées par les téléphones. | 22 Mo |
-| [vybz-studios-pub-4k.mp4](vybz-studios-pub-4k.mp4?raw=true) | Version principale en H.264 : ordinateur, logiciel de montage, ou téléphone qui ne lit pas la version galerie. | 38 Mo |
+| [vybz-studios-pub-4k-galerie.mp4](vybz-studios-pub-4k-galerie.mp4?raw=true) | L'enregistrer dans la galerie du téléphone. Format H.265, le même que les vidéos filmées par les téléphones. | 24 Mo |
+| [vybz-studios-pub-4k.mp4](vybz-studios-pub-4k.mp4?raw=true) | Version principale en H.264 : ordinateur, logiciel de montage, ou téléphone qui ne lit pas la version galerie. | 58 Mo |
 
 ## Enregistrer la vidéo dans la galerie
 
