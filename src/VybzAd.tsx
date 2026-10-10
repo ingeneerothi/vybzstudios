@@ -37,14 +37,14 @@ const DUCK_TO = DUCK_FROM + CTA.number.length * CTA.perChar + 4;
 // lands its peak on the cut.
 const Cam: React.FC<{
   total: number;
+  enter?: boolean;
   exit?: boolean;
   children: React.ReactNode;
-}> = ({ total, exit = true, children }) => {
+}> = ({ total, enter: withEnter = true, exit = true, children }) => {
   const frame = useCurrentFrame();
-  const enter = interpolate(frame, [0, 16], [1.045, 1], {
-    ...clamp,
-    easing: EASE_OUT,
-  });
+  const enter = withEnter
+    ? interpolate(frame, [0, 16], [1.045, 1], { ...clamp, easing: EASE_OUT })
+    : 1;
   const out = exit
     ? interpolate(frame, [total - 8, total], [0, 1], {
         ...clamp,
@@ -107,7 +107,10 @@ export const VybzAd: React.FC = () => (
       </Cam>
     </Sequence>
     <Sequence name="10 Réalisations" {...SCENES.work}>
-      <Work />
+      {/* Content unchanged; only the house zoom-blur exit into the contact. */}
+      <Cam total={SCENES.work.durationInFrames} enter={false}>
+        <Work />
+      </Cam>
     </Sequence>
     <Sequence name="11 Contact" {...SCENES.cta}>
       <Cam total={SCENES.cta.durationInFrames} exit={false}>

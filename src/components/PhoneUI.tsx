@@ -341,7 +341,7 @@ export const SafariScreen: React.FC<{
             display: "flex",
             alignItems: "center",
             padding: "0 24px",
-            fontSize: 31,
+            fontSize: 36,
             color: url ? C.ink : "#8A8D96",
             overflow: "hidden",
             whiteSpace: "nowrap",
@@ -439,15 +439,16 @@ export const SafariScreen: React.FC<{
           </svg>
           <div
             style={{
-              fontSize: 40,
+              fontSize: 44,
               fontWeight: 700,
               color: C.ink,
               lineHeight: 1.15,
+              textWrap: "balance",
             }}
           >
             Impossible d’ouvrir la page
           </div>
-          <div style={{ fontSize: 29, color: C.mute, lineHeight: 1.35 }}>
+          <div style={{ fontSize: 33, color: C.mute, lineHeight: 1.35 }}>
             Aucun site trouvé à cette adresse.
           </div>
         </div>
@@ -575,7 +576,7 @@ export const SearchScreen: React.FC<{
                 justifyContent: "center",
               }}
             >
-              <LogoIcon height={62} color="#FFFFFF" />
+              <LogoIcon height={62} color="#FFFFFF" vColor={C.ink} />
             </div>
             <div
               style={{

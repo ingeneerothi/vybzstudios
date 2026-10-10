@@ -11,7 +11,8 @@ export const LogoIcon: React.FC<{
   height: number;
   color?: string;
   vProgress?: number; // 0..1, draws the V stroke
-}> = ({ height, color = C.ink, vProgress = 1 }) => (
+  vColor?: string;
+}> = ({ height, color = C.ink, vProgress = 1, vColor = "#FFFFFF" }) => (
   <svg
     viewBox={ICON_VIEWBOX}
     height={height}
@@ -24,7 +25,7 @@ export const LogoIcon: React.FC<{
     <polyline
       points="463,420 545.5,572 628,420"
       fill="none"
-      stroke="#FFFFFF"
+      stroke={vColor}
       strokeWidth={45}
       strokeLinecap="round"
       strokeLinejoin="round"

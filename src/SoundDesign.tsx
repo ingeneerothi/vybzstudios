@@ -74,6 +74,9 @@ export const SoundDesign: React.FC = () => (
     <Sfx name="whoosh-in" align="peak" at={S.poster.from} gain={0.7} />
     <Sfx name="whoosh-out" at={S.poster.from + 24} gain={0.6} />
     <Sfx name="whoosh-out" at={S.poster.from + 50} gain={0.45} />
+    {/* glitch sounds on the headline's glitch bursts (settled at local 31) */}
+    <Sfx name="glitch" at={S.poster.from + 87} gain={0.5} />
+    <Sfx name="glitch" at={S.poster.from + 143} gain={0.4} />
 
     {/* 6. Search "vybz studios" */}
     <Sfx name="whoosh-in" align="peak" at={S.search.from} gain={0.7} />
@@ -95,6 +98,7 @@ export const SoundDesign: React.FC = () => (
     <Sfx name="shimmer" at={S.reveal.from + REVEAL.shine} gain={0.8} />
 
     {/* 8. Relief (clip sound) */}
+    <Sfx name="whoosh-in" align="peak" at={S.relief.from} gain={0.6} />
     <Sfx name="swish" at={S.relief.from} gain={0.45} />
 
     {/* 9. Services (the music starts here) */}
