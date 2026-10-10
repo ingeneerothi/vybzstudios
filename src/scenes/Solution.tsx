@@ -1,257 +1,361 @@
 import React from "react";
-import {
-  AbsoluteFill,
-  Easing,
-  Img,
-  OffthreadVideo,
-  interpolate,
-  spring,
-  staticFile,
-  useCurrentFrame,
-  useVideoConfig,
-} from "remotion";
-import { Caret, CleanText, typedCount } from "../components/Text";
-import { Click, MediaCard, TopText } from "../components/Layout";
-import { LogoIcon, HorizontalLogo, Wordmark } from "../components/Logo";
+import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import { BlurText, Emoji } from "../components/BlurText";
+import { CaptionCard, FullClip, Glow } from "../components/Stage";
+import { HorizontalLogo, LogoIcon } from "../components/Logo";
 import {
   ChatPhoneIcon,
   MotionIcon,
   PosterIcon,
   WebIcon,
 } from "../components/Icons";
-import { Phone, SCREEN_W } from "../components/Phone";
-import { SCENES, WORK_SWITCH } from "../timing";
-import { C, FONT, W } from "../theme";
+import { Phone } from "../components/Phone";
+import {
+  Caret,
+  Keyboard,
+  RESULT_BOX,
+  SearchScreen,
+  TapRipple,
+  keyDown,
+  typedText,
+} from "../components/PhoneUI";
+import { C, FONT, SHADOW, W } from "../theme";
+import { EASE_IN, EASE_IN_OUT, EASE_OUT, clamp, drift, ramp } from "../motion";
+import { SCENES } from "../timing";
 
-const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
-const fill: React.CSSProperties = {
-  width: "100%",
-  height: "100%",
-  display: "block",
-};
-const cover: React.CSSProperties = {
-  width: "100%",
-  height: "100%",
-  objectFit: "cover",
+// ---------------------------------------------------------------------------
+// 6. Search: "vybz studios" is typed in the browser, the result is tapped and
+// the camera dives into it (the logo appears on the other side).
+export const QUERY = "vybz studios";
+export const SEARCH = {
+  tapField: 8,
+  typeStart: 20,
+  perChar: 3,
+  enter: 60,
+  results: 66,
+  tapResult: 92,
+  diveStart: 100,
 };
 
-// Warm light behind what Vybz Studios brings.
-const Glow: React.FC<{ y: number; size: number; opacity?: number }> = ({
-  y,
-  size,
-  opacity = 1,
-}) => (
-  <div
-    style={{
-      position: "absolute",
-      left: W / 2 - size / 2,
-      top: y - size / 2,
-      width: size,
-      height: size,
-      borderRadius: "50%",
-      opacity,
-      background:
-        "radial-gradient(circle, rgba(255,214,10,0.55) 0%, rgba(255,214,10,0.22) 38%, rgba(255,214,10,0) 70%)",
-    }}
-  />
+const PHONE_X = (1080 - 653) / 2;
+const PHONE_Y = (1920 - 1136) / 2;
+// Screen point -> composition point.
+const toFrame = (x: number, y: number) => ({
+  x: PHONE_X + 16 + x,
+  y: PHONE_Y + 16 + y,
+});
+const FIELD = toFrame(300, 239);
+const RESULT = toFrame(
+  RESULT_BOX.x + RESULT_BOX.w / 2,
+  RESULT_BOX.y + RESULT_BOX.h / 2,
 );
 
-// 6. The solution (15.5 - 18 s): white flash, then the logo zooms in out of
-// the light and settles, perfectly still; a shine runs across VYBZ. The
-// subtitle is complete by frame 21 so it stays on screen for over 2 s.
-const REVEAL_SUB_DELAY = 12;
-export const Reveal: React.FC = () => {
+// Camera keyframes as translate(X, Y) scale(S) with origin 0 0. Keeping
+// X = fx (1 - S) and Y = fy (1 - S) holds the point (fx, fy) still.
+const camAt = (fx: number, fy: number, s: number, tx = fx, ty = fy) => ({
+  s,
+  x: tx - fx * s,
+  y: ty - fy * s,
+});
+
+export const Search: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const flash = interpolate(frame, [0, 4, 18], [1, 1, 0], clamp);
-  const burst = interpolate(frame, [0, 22], [0.2, 2.6], {
-    ...clamp,
-    easing: Easing.out(Easing.cubic),
+  const total = SCENES.search.durationInFrames;
+  const k0 = camAt(540, 960, 0.94);
+  const k1 = camAt(FIELD.x, FIELD.y, 1.16, 540, 760);
+  const k2 = camAt(RESULT.x, RESULT.y, 1.02);
+  const k3 = camAt(RESULT.x, RESULT.y, 7.5);
+  let cam = k0;
+  const lerp = (a: typeof k0, b: typeof k0, t: number) => ({
+    s: a.s + (b.s - a.s) * t,
+    x: a.x + (b.x - a.x) * t,
+    y: a.y + (b.y - a.y) * t,
   });
-  const zoom = spring({
-    frame: frame - 3,
-    fps,
-    config: { damping: 15, stiffness: 95, mass: 0.9 },
-  });
-  const blur = interpolate(frame, [3, 20], [16, 0], clamp);
-  const v = interpolate(frame, [12, 30], [0, 1], {
-    ...clamp,
-    easing: Easing.inOut(Easing.cubic),
-  });
-  const shine = interpolate(frame, [26, 62], [-60, 160], clamp);
-  const rays = frame * 0.25;
+  if (frame < SEARCH.enter) {
+    cam = lerp(k0, k1, ramp(frame, 0, SEARCH.enter, EASE_IN_OUT));
+  } else if (frame < SEARCH.diveStart) {
+    cam = lerp(k1, k2, ramp(frame, SEARCH.enter, 28, EASE_IN_OUT));
+  } else {
+    cam = lerp(
+      k2,
+      k3,
+      ramp(frame, SEARCH.diveStart, total - SEARCH.diveStart, EASE_IN),
+    );
+  }
+  const dive = ramp(frame, total - 16, 16, EASE_IN);
+  const inP = ramp(frame, 0, 16);
+  const focused = ramp(frame, SEARCH.tapField, 8);
+  const kb =
+    ramp(frame, SEARCH.tapField + 2, 12, EASE_OUT) *
+    (1 - ramp(frame, SEARCH.enter + 2, 12, EASE_IN_OUT));
+  const query = typedText(frame, SEARCH.typeStart, SEARCH.perChar, QUERY);
   return (
     <AbsoluteFill>
       <AbsoluteFill
         style={{
-          backgroundImage: `repeating-conic-gradient(from ${rays}deg at 50% 41%, rgba(255,214,10,0.20) 0deg 5deg, rgba(255,214,10,0) 5deg 15deg)`,
-          WebkitMaskImage:
-            "radial-gradient(circle at 50% 41%, black 0%, transparent 55%)",
-          maskImage:
-            "radial-gradient(circle at 50% 41%, black 0%, transparent 55%)",
-          opacity: interpolate(frame, [4, 24], [0, 1], clamp),
+          transformOrigin: "0 0",
+          transform: `translate(${cam.x}px, ${cam.y}px) scale(${cam.s})`,
+          filter: dive > 0.01 ? `blur(${dive * 16}px)` : undefined,
+        }}
+      >
+        <Phone
+          style={{
+            left: PHONE_X,
+            top: PHONE_Y,
+            opacity: Math.min(1, inP * 1.4),
+            transform: `translateY(${(1 - inP) * 90}px)`,
+            filter: inP < 0.99 ? `blur(${(1 - inP) * 12}px)` : undefined,
+          }}
+        >
+          <SearchScreen
+            frame={frame}
+            query={query}
+            caretOn={
+              frame >= SEARCH.tapField &&
+              frame < SEARCH.enter &&
+              Math.floor(frame / 14) % 2 === 0
+            }
+            focused={focused * (1 - ramp(frame, SEARCH.enter, 10))}
+            resultsAt={SEARCH.results}
+            pressAt={SEARCH.tapResult}
+          />
+          <Keyboard
+            returnLabel="rechercher"
+            pressed={
+              frame >= SEARCH.enter && frame < SEARCH.enter + 6
+                ? "return"
+                : keyDown(frame, SEARCH.typeStart, SEARCH.perChar, QUERY)
+            }
+            slide={kb}
+          />
+          <TapRipple frame={frame} at={SEARCH.tapField} x={300} y={239} />
+          <TapRipple
+            frame={frame}
+            at={SEARCH.tapResult}
+            x={RESULT_BOX.x + RESULT_BOX.w / 2}
+            y={RESULT_BOX.y + RESULT_BOX.h / 2}
+          />
+        </Phone>
+      </AbsoluteFill>
+      {/* The dive ends in a bright violet-white bloom. */}
+      <AbsoluteFill
+        style={{
+          background: `radial-gradient(circle at 50% 45%, #FFFFFF 0%, #F4F1FF 45%, ${C.accentSoft} 100%)`,
+          opacity: ramp(frame, total - 14, 14, EASE_IN),
         }}
       />
-      <Glow
-        y={790}
-        size={1300}
-        opacity={interpolate(frame, [0, 20], [0, 1], clamp)}
+    </AbsoluteFill>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// 7. The logo: out of the bloom, the monitor lands, the V draws itself, the
+// letters rise in, then "est là pour t'aider.".
+export const REVEAL = { logo: 2, subtitle: 14, shine: 44 };
+
+export const Reveal: React.FC = () => {
+  const frame = useCurrentFrame();
+  const total = SCENES.reveal.durationInFrames;
+  const bloom = 1 - ramp(frame, 0, 18);
+  const icon = ramp(frame, REVEAL.logo, 20);
+  const v = ramp(frame, REVEAL.logo + 8, 18, EASE_IN_OUT);
+  const shine = interpolate(
+    frame,
+    [REVEAL.shine, REVEAL.shine + 34],
+    [-60, 160],
+    clamp,
+  );
+  const settled = frame >= REVEAL.logo + 30;
+  const rays = ramp(frame, 4, 30);
+  const vybzSize = 206;
+  return (
+    <AbsoluteFill
+      style={{ transform: drift(frame, total, { y: -10, scale: 0.03 }) }}
+    >
+      <Glow y={800} size={1500} opacity={rays} />
+      <AbsoluteFill
+        style={{
+          backgroundImage: `repeating-conic-gradient(from ${frame * 0.2}deg at 50% 42%, rgba(91,60,246,0.10) 0deg 4deg, rgba(91,60,246,0) 4deg 14deg)`,
+          WebkitMaskImage:
+            "radial-gradient(circle at 50% 42%, black 0%, transparent 52%)",
+          maskImage:
+            "radial-gradient(circle at 50% 42%, black 0%, transparent 52%)",
+          opacity: rays,
+        }}
       />
       <div
         style={{
           position: "absolute",
           left: 0,
           right: 0,
-          top: 470,
+          top: 450,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          opacity: interpolate(frame, [3, 10], [0, 1], clamp),
-          transform: `scale(${interpolate(zoom, [0, 1], [2.3, 1])})`,
-          filter: blur > 0.05 ? `blur(${blur}px)` : undefined,
         }}
       >
-        <LogoIcon height={330} vProgress={v} />
-        <div style={{ marginTop: 64 }}>
-          <Wordmark
-            size={206}
-            studiosScale={0.255}
-            vybzStyle={{
-              backgroundImage: `linear-gradient(105deg, ${C.ink} 0%, ${C.ink} 40%, #8a8a8a 47%, #ffffff 50%, #8a8a8a 53%, ${C.ink} 60%, ${C.ink} 100%)`,
-              backgroundSize: "300% 100%",
-              backgroundPosition: `${100 - shine}% 0`,
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
+        <div
+          style={{
+            opacity: Math.min(1, icon * 1.4),
+            transform: `translateY(${(1 - icon) * 60}px) scale(${0.7 + 0.3 * icon})`,
+            filter: icon < 0.99 ? `blur(${(1 - icon) * 16}px)` : undefined,
+          }}
+        >
+          <LogoIcon height={330} vProgress={v} />
+        </div>
+        <div
+          style={{
+            marginTop: 64,
+            display: "inline-flex",
+            flexDirection: "column",
+            fontFamily: FONT,
+            color: C.ink,
+          }}
+        >
+          <div
+            style={{
+              fontSize: vybzSize,
+              fontWeight: 700,
+              lineHeight: 0.78,
+              letterSpacing: "-0.01em",
+              ...(settled
+                ? {
+                    backgroundImage: `linear-gradient(105deg, ${C.ink} 0%, ${C.ink} 40%, ${C.accent} 46%, #B9A8FF 50%, ${C.accent} 54%, ${C.ink} 60%, ${C.ink} 100%)`,
+                    backgroundSize: "300% 100%",
+                    backgroundPosition: `${100 - shine}% 0`,
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    color: "transparent",
+                  }
+                : {}),
             }}
-          />
+          >
+            {settled
+              ? "VYBZ"
+              : Array.from("VYBZ").map((ch, i) => {
+                  const p = ramp(frame, REVEAL.logo + 10 + i * 3, 18);
+                  return (
+                    <span
+                      key={i}
+                      style={{
+                        display: "inline-block",
+                        opacity: Math.min(1, p * 1.3),
+                        transform: `translateY(${(1 - p) * 60}px)`,
+                        filter:
+                          p < 0.99 ? `blur(${(1 - p) * 18}px)` : undefined,
+                      }}
+                    >
+                      {ch}
+                    </span>
+                  );
+                })}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: vybzSize * 0.255,
+              fontWeight: 500,
+              lineHeight: 1,
+              marginTop: vybzSize * 0.11,
+            }}
+          >
+            {Array.from("STUDIOS").map((ch, i) => {
+              const p = ramp(frame, REVEAL.logo + 18 + i * 2, 16);
+              return (
+                <span
+                  key={i}
+                  style={{
+                    display: "inline-block",
+                    opacity: p,
+                    filter: p < 0.99 ? `blur(${(1 - p) * 8}px)` : undefined,
+                  }}
+                >
+                  {ch}
+                </span>
+              );
+            })}
+          </div>
         </div>
       </div>
-      <div style={{ position: "absolute", left: 60, right: 60, top: 1250 }}>
-        <CleanText
-          delay={REVEAL_SUB_DELAY}
-          stagger={3}
+      <div style={{ position: "absolute", left: 60, right: 60, top: 1260 }}>
+        <BlurText
           size={84}
-          weight={700}
+          delay={REVEAL.subtitle}
+          stagger={3}
           segments={[
             { text: "est là pour " },
-            { text: "t’aider.", highlight: true },
+            { text: "t’aider.", color: C.accent },
           ]}
         />
       </div>
-      <Click at={8} variant={3} volume={0.9} />
-      {[0, 1, 2, 3].map((i) => (
-        <Click
-          key={i}
-          at={REVEAL_SUB_DELAY + i * 3}
-          variant={i}
-          volume={0.55}
-        />
-      ))}
-      <div
-        style={{
-          position: "absolute",
-          left: W / 2 - 500 * burst,
-          top: 790 - 500 * burst,
-          width: 1000 * burst,
-          height: 1000 * burst,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,250,220,0.9) 40%, rgba(255,255,255,0) 70%)",
-          opacity: interpolate(frame, [0, 22], [1, 0], clamp),
-        }}
-      />
-      <AbsoluteFill style={{ background: "#FFFFFF", opacity: flash }} />
+      <AbsoluteFill style={{ background: "#FFFFFF", opacity: bloom }} />
     </AbsoluteFill>
   );
 };
 
-// 7. Relief (18 - 21.6 s): the girl's clip in full, clean and stable.
+// ---------------------------------------------------------------------------
+// 8. Relief: the girl's clip in full, full screen, with a clean caption.
 const GIRL_END = SCENES.relief.durationInFrames;
+
 export const Relief: React.FC = () => (
   <AbsoluteFill>
-    <TopText>
-      <CleanText
-        size={82}
-        stagger={2}
-        delay={-4}
-        segments={[
-          { text: "Les vendeurs qui ont enfin trouvé " },
-          { text: "Vybz Studios :", highlight: true, nowrap: true },
-        ]}
-      />
-    </TopText>
-    <Glow y={1090} size={1400} opacity={0.6} />
-    <MediaCard
-      top={600}
-      height={960}
-      aspect={256 / 248}
-      background={
-        <OffthreadVideo
-          src={staticFile("media/girl-bg.mp4")}
-          muted
-          style={cover}
-        />
+    <FullClip
+      src="media/girl-full.mp4"
+      // Short fade so the sound does not stop dead at the cut.
+      volume={(f) =>
+        interpolate(f, [GIRL_END - 6, GIRL_END - 1], [1, 0], clamp)
       }
-    >
-      <OffthreadVideo
-        src={staticFile("media/girl.mp4")}
-        style={fill}
-        // Short fade so the sound does not stop dead at the cut.
-        volume={(f) =>
-          interpolate(f, [GIRL_END - 6, GIRL_END - 1], [1, 0], clamp)
-        }
-      />
-    </MediaCard>
+    />
+    <CaptionCard
+      tone="clean"
+      seed="relief"
+      delay={-2}
+      size={66}
+      segments={[
+        { text: "Les vendeurs qui ont enfin trouvé " },
+        { text: "Vybz Studios :", color: C.accent, nowrap: true },
+      ]}
+    />
   </AbsoluteFill>
 );
 
-// 8. Services (21.6 - 25.6 s): three cards, one by one.
+// ---------------------------------------------------------------------------
+// 9. Services, one by one, then "Prix très abordables".
 const SERVICES = [
   { label: "Motion design", Icon: MotionIcon },
   { label: "Web design", Icon: WebIcon },
-  { label: "Affiches\npublicitaires", Icon: PosterIcon },
+  { label: "Affiches publicitaires", Icon: PosterIcon },
 ];
-const SERVICE_AT = [14, 62, 110];
+export const SERVICE_AT = [10, 40, 70];
+export const PRICE_AT = 100;
 
 export const Services: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const total = SCENES.services.durationInFrames;
+  const price = ramp(frame, PRICE_AT, 20);
+  const priceShine = interpolate(
+    frame,
+    [PRICE_AT + 18, PRICE_AT + 52],
+    [-40, 140],
+    clamp,
+  );
   return (
-    <AbsoluteFill>
-      <div style={{ position: "absolute", left: 60, right: 60, top: 250 }}>
-        <div
-          style={{
-            fontFamily: FONT,
-            fontWeight: 600,
-            fontSize: 34,
-            letterSpacing: "0.32em",
-            color: C.mute,
-            textAlign: "center",
-            opacity: interpolate(frame, [0, 10], [0, 1], clamp),
-          }}
-        >
-          VYBZ STUDIOS
-        </div>
-        <CleanText
-          size={110}
+    <AbsoluteFill
+      style={{ transform: drift(frame, total, { y: -12, scale: 0.03 }) }}
+    >
+      <Glow y={900} size={1500} opacity={0.7} />
+      <div style={{ position: "absolute", left: 60, right: 60, top: 236 }}>
+        <BlurText
+          size={104}
           delay={-2}
-          segments={[{ text: "Nos " }, { text: "services", highlight: true }]}
-          style={{ marginTop: 14 }}
+          segments={[{ text: "Nos " }, { text: "services", color: C.accent }]}
         />
       </div>
       {SERVICES.map(({ label, Icon }, i) => {
         const at = SERVICE_AT[i];
-        const s = spring({
-          frame: frame - at,
-          fps,
-          config: { damping: 17, stiffness: 160 },
-        });
-        const draw = interpolate(frame, [at + 4, at + 26], [0, 1], {
-          ...clamp,
-          easing: Easing.inOut(Easing.cubic),
-        });
-        const ring = interpolate(frame, [at, at + 24], [1, 0], clamp);
+        const p = ramp(frame, at, 22);
+        const draw = ramp(frame, at + 6, 24, EASE_IN_OUT);
         return (
           <div
             key={label}
@@ -259,42 +363,42 @@ export const Services: React.FC = () => {
               position: "absolute",
               left: 80,
               width: 920,
-              top: 600 + i * 270,
-              height: 230,
-              borderRadius: 40,
+              top: 452 + i * 214,
+              height: 184,
+              borderRadius: 44,
               background: C.card,
+              boxShadow: SHADOW,
               display: "flex",
               alignItems: "center",
-              gap: 44,
-              padding: "0 36px",
-              boxShadow: `0 22px 50px rgba(20,17,15,0.12), 0 0 0 ${6 * ring}px rgba(255,214,10,${0.9 * ring})`,
-              opacity: s,
-              transform: `translateX(${(1 - s) * 160}px)`,
+              gap: 40,
+              padding: "0 30px",
+              opacity: Math.min(1, p * 1.3),
+              transform: `translateY(${(1 - p) * 70}px) scale(${0.95 + 0.05 * p})`,
+              filter: p < 0.99 ? `blur(${(1 - p) * 12}px)` : undefined,
             }}
           >
             <div
               style={{
-                width: 164,
-                height: 164,
+                width: 128,
+                height: 128,
                 flex: "none",
-                borderRadius: 38,
-                background: C.ink,
+                borderRadius: 34,
+                background: `linear-gradient(145deg, ${C.accent}, ${C.accentDeep})`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <Icon size={118} progress={draw} />
+              <Icon size={96} progress={draw} />
             </div>
             <div
               style={{
                 fontFamily: FONT,
-                fontWeight: 800,
-                fontSize: 72,
-                lineHeight: 1.05,
-                letterSpacing: "-0.02em",
+                fontWeight: 700,
+                fontSize: 62,
+                letterSpacing: "-0.03em",
                 color: C.ink,
-                whiteSpace: "pre-line",
+                lineHeight: 1.05,
               }}
             >
               {label}
@@ -302,167 +406,70 @@ export const Services: React.FC = () => {
           </div>
         );
       })}
-      {SERVICE_AT.map((at, i) => (
-        <Click key={i} at={at} variant={i + 2} volume={0.7} />
-      ))}
-    </AbsoluteFill>
-  );
-};
-
-// 9 + 10. Our work (25.6 - 33.6 s): one phone; Cut & Care "Avant / Après"
-// (5 s, muted) then the Bubble Tea poster slides in with a slow zoom. The
-// phone pops in within a few frames so the first "Avant" shot is visible.
-const SWAP_AT = WORK_SWITCH - 6;
-const PHONE_TOP = 446;
-
-const Caption: React.FC<{ text: string; opacity: number }> = ({
-  text,
-  opacity,
-}) => (
-  <div
-    style={{
-      position: "absolute",
-      left: 0,
-      right: 0,
-      top: 330,
-      display: "flex",
-      justifyContent: "center",
-      opacity,
-    }}
-  >
-    <div
-      style={{
-        fontFamily: FONT,
-        fontWeight: 600,
-        fontSize: 44,
-        color: C.ink,
-        background: C.card,
-        borderRadius: 48,
-        padding: "14px 38px",
-        boxShadow: "0 10px 26px rgba(20,17,15,0.12)",
-        transform: `translateY(${(1 - opacity) * 16}px)`,
-      }}
-    >
-      {text}
-    </div>
-  </div>
-);
-
-export const Work: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const pop = spring({
-    frame: frame + 2,
-    fps,
-    config: { damping: 15, stiffness: 190 },
-  });
-  const swap = spring({
-    frame: frame - SWAP_AT,
-    fps,
-    config: { damping: 20, stiffness: 160 },
-  });
-  const showPoster = frame >= SWAP_AT;
-  const zoom = interpolate(frame, [SWAP_AT, SWAP_AT + 186], [1, 1.09], clamp);
-  const phoneLeft = (W - (SCREEN_W + 32)) / 2;
-  const caption1 =
-    spring({ frame: frame - 4, fps, config: { damping: 18 } }) *
-    interpolate(frame, [SWAP_AT - 10, SWAP_AT], [1, 0], clamp);
-  const caption2 = spring({
-    frame: frame - SWAP_AT - 2,
-    fps,
-    config: { damping: 18 },
-  });
-  return (
-    <AbsoluteFill>
-      <div style={{ position: "absolute", left: 60, right: 60, top: 196 }}>
-        <CleanText
-          size={96}
-          delay={-4}
-          segments={[
-            { text: "Nos réalisations " },
-            { text: "✨", twinkle: true },
-          ]}
-        />
-      </div>
-      <Caption text="Pub vidéo · Cut & Care Styling" opacity={caption1} />
-      {showPoster ? (
-        <Caption text="Affiche · Bubble Tea" opacity={caption2} />
-      ) : null}
-      <Glow y={PHONE_TOP + 570} size={1500} opacity={0.75} />
-      <Phone
+      <div
         style={{
-          left: phoneLeft,
-          top: PHONE_TOP,
-          opacity: interpolate(frame, [0, 3], [0.4, 1], clamp),
-          transform: `translateY(${(1 - pop) * 70}px) scale(${0.92 + 0.08 * pop})`,
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: 1146,
+          display: "flex",
+          justifyContent: "center",
         }}
       >
-        <OffthreadVideo
-          src={staticFile("media/cutcare-avant-apres.mp4")}
-          muted
-          style={{ ...cover, display: "block" }}
-        />
-        {showPoster ? (
-          <AbsoluteFill
-            style={{
-              transform: `translateX(${(1 - swap) * SCREEN_W}px)`,
-              background: C.night,
-            }}
-          >
-            <Img
-              src={staticFile("media/bubble-tea-bg.jpg")}
-              style={{ ...cover, transform: "scale(1.1)" }}
-            />
-            <AbsoluteFill
-              style={{ alignItems: "center", justifyContent: "center" }}
-            >
-              <Img
-                src={staticFile("images/bubble-tea.webp")}
-                style={{
-                  width: SCREEN_W,
-                  height: SCREEN_W * (1307 / 924),
-                  transform: `scale(${zoom})`,
-                  boxShadow: "0 0 60px rgba(0,0,0,0.6)",
-                }}
-              />
-            </AbsoluteFill>
-          </AbsoluteFill>
-        ) : null}
-      </Phone>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 22,
+            padding: "26px 52px 26px 40px",
+            borderRadius: 999,
+            fontFamily: FONT,
+            fontWeight: 800,
+            fontSize: 60,
+            letterSpacing: "-0.03em",
+            color: C.ink,
+            backgroundImage: `linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 60%, rgba(255,255,255,0) 100%), linear-gradient(180deg, #FF9440, ${C.orange})`,
+            backgroundSize: "300% 100%, 100% 100%",
+            backgroundPosition: `${100 - priceShine}% 0, 0 0`,
+            boxShadow: "0 26px 56px rgba(255,122,26,0.38)",
+            opacity: Math.min(1, price * 1.4),
+            transform: `rotate(${-6 + 4 * price}deg) scale(${1.35 - 0.35 * price})`,
+            filter: price < 0.99 ? `blur(${(1 - price) * 12}px)` : undefined,
+          }}
+        >
+          <Emoji name="money-bag" size="1.3em" />
+          Prix très abordables
+        </div>
+      </div>
     </AbsoluteFill>
   );
 };
 
-// 11. Call to action (33.6 - 37 s). Everything stays until the very end.
+// ---------------------------------------------------------------------------
+// 11. Call to action. Everything stays until the very end.
 const PHONE_NUMBER = "01 53 37 10 00";
-const NUMBER_START = 40;
-const NUMBER_PER_CHAR = 3;
+export const CTA = {
+  pill: 28,
+  numberStart: 44,
+  perChar: 3,
+  number: PHONE_NUMBER,
+};
+const NUMBER_END = CTA.numberStart + PHONE_NUMBER.length * CTA.perChar;
+export const CTA_DONE = NUMBER_END + 4;
 
 export const CallToAction: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const logoIn = spring({
-    frame: frame + 4,
-    fps,
-    config: { damping: 15, stiffness: 140 },
-  });
-  const pillIn = spring({
-    frame: frame - 26,
-    fps,
-    config: { damping: 14, stiffness: 150 },
-  });
-  const typed = typedCount(
-    frame,
-    NUMBER_START,
-    NUMBER_PER_CHAR,
-    PHONE_NUMBER.length,
-  );
-  const typedEnd = NUMBER_START + PHONE_NUMBER.length * NUMBER_PER_CHAR;
-  const pulseT = Math.max(0, frame - typedEnd) % 50;
-  const pulse = frame > typedEnd ? interpolate(pulseT, [0, 50], [0, 1]) : 0;
+  const total = SCENES.cta.durationInFrames;
+  const logo = ramp(frame, -2, 20);
+  const pill = ramp(frame, CTA.pill, 20);
+  const typed = typedText(frame, CTA.numberStart, CTA.perChar, PHONE_NUMBER);
+  const pulseT = Math.max(0, frame - CTA_DONE) % 60;
+  const pulse = frame > CTA_DONE ? interpolate(pulseT, [0, 60], [0, 1]) : 0;
   return (
-    <AbsoluteFill>
-      <Glow y={1060} size={1500} opacity={0.7} />
+    <AbsoluteFill
+      style={{ transform: drift(frame, total, { y: -8, scale: 0.025 }) }}
+    >
+      <Glow y={1080} size={1500} opacity={0.75} />
       <div
         style={{
           position: "absolute",
@@ -471,28 +478,29 @@ export const CallToAction: React.FC = () => {
           top: 330,
           display: "flex",
           justifyContent: "center",
-          opacity: logoIn,
-          transform: `translateY(${(1 - logoIn) * -40}px) scale(${0.85 + 0.15 * logoIn})`,
+          opacity: Math.min(1, logo * 1.3),
+          transform: `translateY(${(1 - logo) * 30}px)`,
+          filter: logo < 0.99 ? `blur(${(1 - logo) * 14}px)` : undefined,
         }}
       >
         <HorizontalLogo size={104} />
       </div>
       <div style={{ position: "absolute", left: 60, right: 60, top: 640 }}>
-        <CleanText
-          size={104}
+        <BlurText
+          size={100}
           delay={4}
           stagger={4}
           lineHeight={1.08}
           segments={[
             { text: "Contacte " },
-            { text: "Vybz Studios", highlight: true, nowrap: true },
+            { text: "Vybz Studios", color: C.accent, nowrap: true },
           ]}
         />
-        <CleanText
-          size={74}
-          weight={700}
-          delay={20}
-          segments={[{ text: "sur WhatsApp :" }]}
+        <BlurText
+          size={72}
+          weight={600}
+          delay={18}
+          segments={[{ text: "sur WhatsApp :" }]}
           style={{ marginTop: 22 }}
         />
       </div>
@@ -500,22 +508,22 @@ export const CallToAction: React.FC = () => {
         style={{
           position: "absolute",
           left: 70,
-          width: 940,
+          width: W - 140,
           top: 1100,
-          height: 164,
-          borderRadius: 82,
-          background: `linear-gradient(180deg, ${C.greenDeep}, ${C.greenDark})`,
+          height: 168,
+          borderRadius: 84,
+          background: C.green,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "0 40px",
           gap: 26,
-          boxShadow: `0 26px 60px rgba(17,156,75,0.35), 0 0 0 ${pulse * 26}px rgba(37,211,102,${0.35 * (1 - pulse)})`,
-          opacity: pillIn,
-          transform: `scale(${0.8 + 0.2 * pillIn})`,
+          boxShadow: `0 26px 60px rgba(37,211,102,0.40), 0 0 0 ${pulse * 28}px rgba(37,211,102,${0.4 * (1 - pulse)})`,
+          opacity: Math.min(1, pill * 1.4),
+          transform: `translateY(${(1 - pill) * 50}px) scale(${0.9 + 0.1 * pill})`,
+          filter: pill < 0.99 ? `blur(${(1 - pill) * 12}px)` : undefined,
         }}
       >
-        <ChatPhoneIcon size={100} bg={C.greenDeep} />
+        <ChatPhoneIcon size={100} color={C.ink} bg={C.green} />
         {/* The untyped digits are laid out invisibly so the centred number
             does not shift while it is being typed. */}
         <div
@@ -524,31 +532,25 @@ export const CallToAction: React.FC = () => {
             fontWeight: 800,
             fontSize: 86,
             letterSpacing: "-0.01em",
-            color: "#FFFFFF",
+            color: C.ink,
             whiteSpace: "pre",
             fontVariantNumeric: "tabular-nums",
           }}
         >
-          {PHONE_NUMBER.slice(0, typed)}
+          {typed}
           <Caret
-            visible={frame >= NUMBER_START && frame < typedEnd + 40}
-            color="#FFFFFF"
+            on={
+              frame >= CTA.numberStart &&
+              frame < NUMBER_END + 40 &&
+              Math.floor(frame / 16) % 2 === 0
+            }
+            color={C.ink}
           />
           <span style={{ color: "transparent" }}>
-            {PHONE_NUMBER.slice(typed)}
+            {PHONE_NUMBER.slice(typed.length)}
           </span>
         </div>
       </div>
-      {Array.from(PHONE_NUMBER).map((ch, i) =>
-        ch === " " ? null : (
-          <Click
-            key={i}
-            at={NUMBER_START + i * NUMBER_PER_CHAR}
-            variant={i}
-            volume={0.75}
-          />
-        ),
-      )}
     </AbsoluteFill>
   );
 };
