@@ -11,3 +11,6 @@ Config.setOverwriteOutput(true);
 // Frames are captured as JPEG before encoding; keep them near-lossless so
 // large flat text and colour edges stay clean in 4K.
 Config.setJpegQuality(95);
+// Standard limited-range BT.709 output, which phones and social apps expect.
+Config.setPixelFormat("yuv420p");
+Config.setColorSpace("bt709");
