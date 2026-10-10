@@ -1,15 +1,15 @@
 import React from "react";
 import { C } from "../theme";
 
-export const SCREEN_W = 576;
-export const SCREEN_H = 1024; // 9:16
+export const SCREEN_W = 621;
+export const SCREEN_H = 1104; // 9:16
 const BEZEL = 16;
 
 // A clean phone mockup; children fill the 9:16 screen.
-export const Phone: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({
-  children,
-  style,
-}) => (
+export const Phone: React.FC<{
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}> = ({ children, style }) => (
   <div
     style={{
       position: "absolute",

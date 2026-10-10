@@ -12,7 +12,12 @@ export const LogoIcon: React.FC<{
   color?: string;
   vProgress?: number; // 0..1, draws the V stroke
 }> = ({ height, color = C.ink, vProgress = 1 }) => (
-  <svg viewBox={ICON_VIEWBOX} height={height} width={height * ICON_RATIO} style={{ display: "block", overflow: "visible" }}>
+  <svg
+    viewBox={ICON_VIEWBOX}
+    height={height}
+    width={height * ICON_RATIO}
+    style={{ display: "block", overflow: "visible" }}
+  >
     <rect x={243} y={294} width={605} height={403} rx={60} fill={color} />
     <rect x={522} y={690} width={47} height={62} fill={color} />
     <rect x={425} y={746} width={241} height={51} rx={25.5} fill={color} />
@@ -32,20 +37,28 @@ export const LogoIcon: React.FC<{
 );
 
 // VYBZ with STUDIOS spread underneath to the same width, as on the logo.
+// Proportions measured on the provided logo files: STUDIOS is ~0.235x VYBZ in
+// the horizontal lockup and ~0.255x in the stacked one.
 export const Wordmark: React.FC<{
   size: number; // font size of VYBZ
   color?: string;
   vybzStyle?: React.CSSProperties;
-  studiosOpacity?: number;
-}> = ({ size, color = C.ink, vybzStyle, studiosOpacity = 1 }) => (
-  <div style={{ display: "inline-flex", flexDirection: "column", fontFamily: FONT, color }}>
+  studiosScale?: number;
+}> = ({ size, color = C.ink, vybzStyle, studiosScale = 0.235 }) => (
+  <div
+    style={{
+      display: "inline-flex",
+      flexDirection: "column",
+      fontFamily: FONT,
+      color,
+    }}
+  >
     <div
       style={{
         fontSize: size,
         fontWeight: 700,
         lineHeight: 0.78,
         letterSpacing: "-0.01em",
-        paddingTop: size * 0.06,
         ...vybzStyle,
       }}
     >
@@ -55,11 +68,10 @@ export const Wordmark: React.FC<{
       style={{
         display: "flex",
         justifyContent: "space-between",
-        fontSize: size * 0.235,
+        fontSize: size * studiosScale,
         fontWeight: 500,
         lineHeight: 1,
-        marginTop: size * 0.2,
-        opacity: studiosOpacity,
+        marginTop: size * 0.11,
       }}
     >
       {Array.from("STUDIOS").map((ch, i) => (
@@ -69,7 +81,10 @@ export const Wordmark: React.FC<{
   </div>
 );
 
-export const HorizontalLogo: React.FC<{ size: number; color?: string }> = ({ size, color }) => (
+export const HorizontalLogo: React.FC<{ size: number; color?: string }> = ({
+  size,
+  color,
+}) => (
   <div style={{ display: "flex", alignItems: "flex-start", gap: size * 0.32 }}>
     <LogoIcon height={size * 1.33} color={color} />
     <Wordmark size={size} color={color} />

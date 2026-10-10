@@ -14,7 +14,11 @@ const stroke = (progress: number, color: string) => ({
   strokeDashoffset: 1 - progress,
 });
 
-export const MotionIcon: React.FC<IconProps> = ({ size, progress = 1, color = "#fff" }) => (
+export const MotionIcon: React.FC<IconProps> = ({
+  size,
+  progress = 1,
+  color = "#fff",
+}) => (
   <svg viewBox="0 0 100 100" width={size} height={size}>
     <circle cx={58} cy={50} r={30} {...stroke(progress, color)} />
     <path d="M51 37 L72 50 L51 63 Z" {...stroke(progress, color)} />
@@ -22,36 +26,67 @@ export const MotionIcon: React.FC<IconProps> = ({ size, progress = 1, color = "#
   </svg>
 );
 
-export const WebIcon: React.FC<IconProps> = ({ size, progress = 1, color = "#fff" }) => (
+export const WebIcon: React.FC<IconProps> = ({
+  size,
+  progress = 1,
+  color = "#fff",
+}) => (
   <svg viewBox="0 0 100 100" width={size} height={size}>
-    <rect x={10} y={18} width={80} height={64} rx={8} {...stroke(progress, color)} />
+    <rect
+      x={10}
+      y={18}
+      width={80}
+      height={64}
+      rx={8}
+      {...stroke(progress, color)}
+    />
     <path d="M10 34 H90" {...stroke(progress, color)} />
-    <path d="M40 48 L31 57 L40 66 M60 48 L69 57 L60 66 M53 45 L47 69" {...stroke(progress, color)} />
+    <path
+      d="M40 48 L31 57 L40 66 M60 48 L69 57 L60 66 M53 45 L47 69"
+      {...stroke(progress, color)}
+    />
   </svg>
 );
 
-export const PosterIcon: React.FC<IconProps> = ({ size, progress = 1, color = "#fff" }) => (
+export const PosterIcon: React.FC<IconProps> = ({
+  size,
+  progress = 1,
+  color = "#fff",
+}) => (
   <svg viewBox="0 0 100 100" width={size} height={size}>
-    <rect x={24} y={10} width={52} height={80} rx={5} {...stroke(progress, color)} />
+    <rect
+      x={24}
+      y={10}
+      width={52}
+      height={80}
+      rx={5}
+      {...stroke(progress, color)}
+    />
     <circle cx={60} cy={30} r={6} {...stroke(progress, color)} />
     <path d="M31 72 L44 54 L53 65 L60 58 L69 72" {...stroke(progress, color)} />
   </svg>
 );
 
 // Simple pictogram of a person (customer).
-export const PersonIcon: React.FC<{ size: number; color: string }> = ({ size, color }) => (
+export const PersonIcon: React.FC<{ size: number; color: string }> = ({
+  size,
+  color,
+}) => (
   <svg viewBox="0 0 60 100" width={size * 0.6} height={size}>
     <circle cx={30} cy={16} r={13} fill={color} />
-    <path d="M8 98 V52 C8 38 17 32 30 32 C43 32 52 38 52 52 V98 Z" fill={color} />
+    <path
+      d="M8 98 V52 C8 38 17 32 30 32 C43 32 52 38 52 52 V98 Z"
+      fill={color}
+    />
   </svg>
 );
 
 // Chat bubble with a handset, for the WhatsApp button.
-export const ChatPhoneIcon: React.FC<{ size: number; color?: string; bg: string }> = ({
-  size,
-  color = "#fff",
-  bg,
-}) => (
+export const ChatPhoneIcon: React.FC<{
+  size: number;
+  color?: string;
+  bg: string;
+}> = ({ size, color = "#fff", bg }) => (
   <svg viewBox="0 0 100 100" width={size} height={size}>
     <path
       d="M50 6 C25.7 6 6 25.2 6 49 C6 57.4 8.5 65.3 12.8 72 L7 93 L29.3 87.4 C35.6 90.8 42.6 92.6 50 92.6 C74.3 92.6 94 73.4 94 49.6 C94 25.8 74.3 6 50 6 Z"

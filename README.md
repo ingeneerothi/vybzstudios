@@ -1,54 +1,30 @@
 # vybzstudios
 
-<p align="center">
-  <a href="https://github.com/remotion-dev/logo">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-dark.apng">
-      <img alt="Animated Remotion Logo" src="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-light.gif">
-    </picture>
-  </a>
-</p>
+Publicité motion design de Vybz Studios, faite avec [Remotion](https://www.remotion.dev).
 
-Welcome to your Remotion project!
+- Composition `VybzAd` : 37 s, 1080x1920 (vertical), 60 images/s.
+- Rendu final en 4K (2160x3840) avec `--scale=2`.
 
-## Commands
+## Commandes
 
-**Install Dependencies**
-
-```console
-npm i --loglevel=error
+```bash
+npm install
+npm run dev                      # Remotion Studio : aperçu et réglages
+npx remotion render VybzAd out/vybz-studios-pub-4k.mp4 --scale=2 --crf=17
 ```
 
-**Start Preview**
+## Structure
 
-```console
-npm run dev
-```
+| Fichier | Rôle |
+| --- | --- |
+| `src/timing.ts` | Minutage des 11 scènes (en images, 60 i/s) |
+| `src/scenes/Problem.tsx` | Scènes 1 à 5 : accroche, pub ratée, réaction, pas de site, affiche ratée |
+| `src/scenes/Solution.tsx` | Scènes 6 à 11 : Vybz Studios, soulagement, services, réalisations, appel à l'action |
+| `src/components/` | Texte qui tremble / texte propre, logo vectoriel, téléphone, icônes, sons de touches |
+| `src/VybzAd.tsx` | Assemblage des scènes et du son de la vidéo « casquette rouge » |
 
-**Render video**
+## Médias
 
-```console
-npx remotion render
-```
-
-**Upgrade Remotion**
-
-```console
-npx remotion upgrade
-```
-
-## Docs
-
-Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).
-
-## Help
-
-We provide help on our [Discord server](https://discord.gg/6VzzNDwUwV).
-
-## Issues
-
-Found an issue with Remotion? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
-
-## License
-
-Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
+- `public/media` est produit par `scripts/prepare-media.sh <dossier des fichiers d'origine>`. Le script recadre la vidéo du ciment, harmonise les volumes à environ -14 LUFS, crée les fonds flous et extrait le passage Cut & Care de 16 s à 21 s.
+- `public/sfx` (sons de touches) est généré par `python3 scripts/make-clicks.py`.
+- `scripts/stills.mjs` sert à rendre des images fixes pour vérifier le rendu.

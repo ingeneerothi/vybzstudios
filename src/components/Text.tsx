@@ -64,13 +64,19 @@ const blockStyle = (
   textWrap: "balance",
 });
 
+// Number of words (or nowrap segments): one key click is played per word.
+export const wordCount = (segments: Seg[]) =>
+  toUnits(segments).filter((u) => u !== "space").length;
+
 // Text for what is "raté": every letter trembles on its own, the block wobbles
-// and glitches (horizontal tear + red/cyan split) every ~0.9 s.
+// and glitches (horizontal tear + red/cyan split) every ~0.9 s. With
+// `stagger`, the words slam in one after the other, `stagger` frames apart.
 export const ShakyText: React.FC<{
   segments: Seg[];
   size: number;
   seed: string;
   delay?: number;
+  stagger?: number;
   weight?: number;
   color?: string;
   lineHeight?: number;
@@ -81,6 +87,7 @@ export const ShakyText: React.FC<{
   size,
   seed,
   delay = 0,
+  stagger = 0,
   weight = 800,
   color = C.ink,
   lineHeight = 1.12,
@@ -109,11 +116,8 @@ export const ShakyText: React.FC<{
     <div
       style={{
         ...blockStyle(size, weight, color, lineHeight, "center"),
-        opacity: interpolate(f, [0, 5], [0, 1], {
-          extrapolateLeft: "clamp",
-          extrapolateRight: "clamp",
-        }),
-        transform: `translateX(${tearX}px) skewX(${skew}deg) scale(${interpolate(enter, [0, 1], [1.4, 1])})`,
+        opacity: f >= 0 ? 1 : 0,
+        transform: `translateX(${tearX}px) skewX(${skew}deg) scale(${interpolate(enter, [0, 1], [1.12, 1])})`,
         textShadow: `${-split}px 0 rgba(229,37,27,0.55), ${split}px 0 rgba(0,170,255,0.45)`,
         ...style,
       }}
@@ -130,6 +134,12 @@ export const ShakyText: React.FC<{
           );
         }
         const amp = (u.seg.strong ? 1.8 : 1) * intensity;
+        const at = u.index * stagger;
+        const slam = spring({
+          frame: f - at,
+          fps,
+          config: { damping: 9, stiffness: 260, mass: 0.6 },
+        });
         return (
           <span
             key={k}
@@ -137,10 +147,23 @@ export const ShakyText: React.FC<{
               display: "inline-block",
               whiteSpace: "nowrap",
               color: u.seg.color ?? color,
+              opacity: f >= at ? 1 : 0,
+              transform:
+                stagger > 0
+                  ? `scale(${interpolate(slam, [0, 1], [1.5, 1])})`
+                  : undefined,
             }}
           >
             {Array.from(u.text).map((ch) => {
               const i = charIndex++;
+              if (ch === "\u00A0") {
+                return (
+                  <span
+                    key={i}
+                    style={{ display: "inline-block", width: "0.3em" }}
+                  />
+                );
+              }
               const dx = (random(`${seed}-x-${i}-${step}`) - 0.5) * 6 * amp;
               const dy = (random(`${seed}-y-${i}-${step}`) - 0.5) * 7 * amp;
               const rot = (random(`${seed}-r-${i}-${step}`) - 0.5) * 8 * amp;
@@ -199,7 +222,12 @@ export const CleanText: React.FC<{
     easing: Easing.out(Easing.cubic),
   });
   return (
-    <div style={{ ...blockStyle(size, weight, color, lineHeight, align), ...style }}>
+    <div
+      style={{
+        ...blockStyle(size, weight, color, lineHeight, align),
+        ...style,
+      }}
+    >
       {units.map((u, k) => {
         if (u === "space") {
           return <span key={k}> </span>;
@@ -243,14 +271,21 @@ export const CleanText: React.FC<{
 
 // Characters typed one by one from `start`, `perChar` frames apart, with a
 // blinking caret while typing and shortly after.
-export const typedCount = (frame: number, start: number, perChar: number, length: number) =>
-  frame < start ? 0 : Math.min(length, Math.floor((frame - start) / perChar) + 1);
+export const typedCount = (
+  frame: number,
+  start: number,
+  perChar: number,
+  length: number,
+) =>
+  frame < start
+    ? 0
+    : Math.min(length, Math.floor((frame - start) / perChar) + 1);
 
-export const Caret: React.FC<{ color?: string; height?: string; visible: boolean }> = ({
-  color = C.ink,
-  height = "0.9em",
-  visible,
-}) => {
+export const Caret: React.FC<{
+  color?: string;
+  height?: string;
+  visible: boolean;
+}> = ({ color = C.ink, height = "0.9em", visible }) => {
   const frame = useCurrentFrame();
   const on = visible && Math.floor(frame / 16) % 2 === 0;
   return (

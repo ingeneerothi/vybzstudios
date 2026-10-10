@@ -7,9 +7,20 @@ import path from "node:path";
 const [outDir, scale, ...frames] = process.argv.slice(2);
 const browserExecutable = process.env.REMOTION_BROWSER ?? null;
 const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts") });
-const composition = await selectComposition({ serveUrl, id: "VybzAd", browserExecutable });
+const composition = await selectComposition({
+  serveUrl,
+  id: "VybzAd",
+  browserExecutable,
+});
 for (const f of frames) {
   const output = path.join(outDir, `frame-${String(f).padStart(4, "0")}.png`);
-  await renderStill({ serveUrl, composition, frame: Number(f), output, scale: Number(scale), browserExecutable });
+  await renderStill({
+    serveUrl,
+    composition,
+    frame: Number(f),
+    output,
+    scale: Number(scale),
+    browserExecutable,
+  });
   console.log(output);
 }

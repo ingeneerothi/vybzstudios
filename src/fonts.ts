@@ -1,4 +1,9 @@
-import { continueRender, delayRender, staticFile } from "remotion";
+import {
+  cancelRender,
+  continueRender,
+  delayRender,
+  staticFile,
+} from "remotion";
 
 const WEIGHTS = [500, 600, 700, 800, 900];
 
@@ -24,8 +29,6 @@ export const loadFonts = () => {
     ),
   )
     .then(() => continueRender(handle))
-    .catch((err) => {
-      console.error(err);
-      continueRender(handle);
-    });
+    // Fail loudly rather than render with a fallback font.
+    .catch((err) => cancelRender(err));
 };

@@ -10,7 +10,9 @@ export const C = {
   red: "#E5251B",
   yellow: "#FFD60A",
   green: "#25D366",
-  greenDeep: "#119C4B",
+  // White reads at 4.3:1 to 6.4:1 on these greens (vs 1.9:1 on #25D366).
+  greenDeep: "#128C4B",
+  greenDark: "#0B6E36",
   night: "#14110F",
 } as const;
 

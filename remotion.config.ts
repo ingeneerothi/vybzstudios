@@ -8,3 +8,6 @@ import { Config } from "@remotion/cli/config";
 Config.setRspack(true);
 Config.setVideoImageFormat("jpeg");
 Config.setOverwriteOutput(true);
+// Frames are captured as JPEG before encoding; keep them near-lossless so
+// large flat text and colour edges stay clean in 4K.
+Config.setJpegQuality(95);
