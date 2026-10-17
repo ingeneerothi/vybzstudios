@@ -77,7 +77,7 @@ export function initBooking(catalog, {lenis} = {}) {
     .map(
       (s) => `<div class="pick-row" data-row="${esc(s.id)}">
   <button type="button" class="pick" data-id="${esc(s.id)}" aria-pressed="false">
-    <span class="pick__img"><img src="img/${esc(s.img)}-640.webp" alt="" loading="lazy" style="object-position:${esc(s.focus ?? '50% 50%')}"></span>
+    <span class="pick__img"><img src="${esc(api.asset(`img/${s.img}-640.webp`))}" alt="" loading="lazy" style="object-position:${esc(s.focus ?? '50% 50%')}"></span>
     <span><span class="pick__name">${esc(s.name)}</span><span class="pick__meta">${s.note ? `${esc(s.note)} · ` : ''}≈ ${formatDuration(s.durationMin)}</span></span>
     <span class="pick__price">${formatFCFA(s.price)}<span class="tick">${CHECK}</span></span>
   </button>

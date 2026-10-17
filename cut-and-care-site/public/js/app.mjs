@@ -36,7 +36,7 @@ $('[data-perks]').innerHTML = catalog.perks
 $('[data-services]').innerHTML = catalog.services
   .map(
     (s) => `<article class="svc" data-svc="${esc(s.id)}">
-  <div class="svc__arch arch"><img src="img/${esc(s.img)}-640.webp" srcset="img/${esc(s.img)}-640.webp 640w, img/${esc(s.img)}-1280.webp 1280w" sizes="(min-width: 1100px) 26vw, (min-width: 760px) 40vw, 80vw" alt="${esc(s.name)} — réalisation Cut &amp; Care Styling" loading="lazy" width="640" height="1138" style="object-position:${esc(s.focus ?? '50% 50%')}"></div>
+  <div class="svc__arch arch"><img src="${esc(api.asset(`img/${s.img}-640.webp`))}" srcset="${esc(api.asset(`img/${s.img}-640.webp`))} 640w, ${esc(api.asset(`img/${s.img}-1280.webp`))} 1280w" sizes="(min-width: 1100px) 26vw, (min-width: 760px) 40vw, 80vw" alt="${esc(s.name)} — réalisation Cut &amp; Care Styling" loading="lazy" width="640" height="1138" style="object-position:${esc(s.focus ?? '50% 50%')}"></div>
   ${catalog.studentDiscount.eligible.includes(s.id) ? `<span class="svc__badge">${esc(catalog.studentDiscount.label)}<small>ÉTUDIANT·E·S</small></span>` : ''}
   <div class="svc__band">
     <h3 class="svc__name">${esc(s.name)}</h3>

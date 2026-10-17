@@ -19,6 +19,12 @@ npm test             # tests (prix, créneaux, téléphone, validation, signatur
 Les bibliothèques et polices sont déjà copiées dans `public/vendor` et `public/fonts` : pas besoin de `npm install` pour lancer le site.
 `npm install && npm run vendor` sert seulement à les mettre à jour.
 
+Pour envoyer un **aperçu sans serveur** (un seul fichier HTML, photos et vidéo comprises, tunnel en démo locale) :
+
+```bash
+npm install && npm run preview   # crée preview/cut-and-care-apercu.html
+```
+
 Sans clé de paiement, le site démarre en **mode démo** : le bouton « Payer » ouvre une page de paiement simulé et aucune somme n'est débitée.
 Le badge « Mode démo · paiement simulé » est alors affiché dans le tunnel.
 
@@ -35,7 +41,7 @@ Le badge « Mode démo · paiement simulé » est alors affiché dans le tunnel.
 | `server/index.mjs` | Serveur HTTP, API, webhooks, pages démo et admin |
 | `server/payments/wave.mjs`, `orange.mjs` | Connexion aux API Wave et Orange Money |
 | `server/data/bookings.json` | Réservations (créé au premier lancement, ignoré par git) |
-| `tools/` | Préparation des images / vidéo et copie des bibliothèques |
+| `tools/` | Préparation des images / vidéo, copie des bibliothèques, aperçu autonome |
 
 ## Modifier les prix, horaires et durées
 

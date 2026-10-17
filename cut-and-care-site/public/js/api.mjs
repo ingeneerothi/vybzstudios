@@ -6,6 +6,9 @@ import {daySlots} from './slots.mjs';
 let server = false;
 const LS_KEY = 'cc-demo-bookings';
 
+/** Chemin d'un fichier du site ; l'aperçu autonome (un seul fichier HTML) les fournit en data URI. */
+export const asset = (path) => window.__ASSETS__?.[path] ?? path;
+
 const local = {
   read() {
     try {
