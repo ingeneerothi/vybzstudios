@@ -1,0 +1,25 @@
+/* Pages serveur : paiement simulé (démo) et tableau de bord du salon. */
+:root { --cream:#f6eee4; --cream-light:#fcf8f2; --sand:#ebdcc8; --beige:#d8be9e; --terracotta:#b8642f; --brown:#824314; --brown-deep:#5a2c0e; --ink:#2e170a; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(110% 80% at 50% 0%, var(--cream-light), var(--cream) 55%, var(--sand)); color: var(--ink); font: 500 16px/1.6 Montserrat, system-ui, sans-serif; }
+h1 { margin: 6px 0 10px; font: 700 34px/1.1 'Playfair Display', Georgia, serif; color: var(--brown-deep); }
+.sp-card { width: min(100%, 520px); padding: 34px 28px; border-radius: 26px; background: var(--cream-light); border: 1px solid rgba(207,164,108,.6); box-shadow: 0 30px 60px -36px rgba(90,44,14,.55); }
+.sp-badge { display: inline-block; margin: 0; padding: 6px 12px; border-radius: 999px; background: rgba(184,100,47,.12); color: var(--brown); font: 600 11px/1 Montserrat, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+.sp-lead { margin: 0 0 20px; color: rgba(46,23,10,.75); font-size: 15px; }
+.sp-dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 18px; margin: 0 0 26px; }
+.sp-dl dt { color: rgba(46,23,10,.6); }
+.sp-dl dd { margin: 0; text-align: right; font-weight: 600; }
+.sp-actions { display: grid; gap: 10px; }
+.sp-btn, .sp-admin button { min-height: 52px; border: 0; border-radius: 999px; background: linear-gradient(160deg,#c46e35,#9a4e21 55%,var(--brown)); color: var(--cream-light); font: 600 14px/1 Montserrat, sans-serif; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.sp-btn--ghost, .sp-admin button.ghost { background: transparent; color: var(--brown); box-shadow: inset 0 0 0 1.5px currentColor; }
+.sp-admin { width: min(100%, 1200px); align-self: start; }
+.sp-admin table { width: 100%; border-collapse: collapse; background: var(--cream-light); border-radius: 18px; overflow: hidden; font-size: 14px; }
+.sp-admin th, .sp-admin td { padding: 12px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--sand); }
+.sp-admin th { background: var(--brown-deep); color: var(--cream-light); font-weight: 600; }
+.sp-admin small { color: rgba(46,23,10,.6); }
+.sp-admin button { min-height: 36px; padding: 0 14px; font-size: 11px; margin: 0 4px 6px 0; }
+.sp-admin .st-paid td:first-child { box-shadow: inset 4px 0 0 #2f7d4f; }
+.sp-admin .st-pending_payment td:first-child { box-shadow: inset 4px 0 0 var(--terracotta); }
+.sp-admin .st-cancelled, .sp-admin .st-expired, .sp-admin .st-payment_failed { opacity: .55; }
+code { padding: 2px 6px; border-radius: 6px; background: var(--sand); font-size: .9em; }
+.sp-warn { margin: 0 0 18px; padding: 12px 16px; border-radius: 12px; background: #fdf0e3; border: 1px solid rgba(184,100,47,.4); color: var(--brown); font-size: 14px; }

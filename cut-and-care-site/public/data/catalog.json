@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "currency": "XOF",
+  "salon": {
+    "name": "Cut & Care Styling",
+    "slogan": "Le style, le soin, la beauté",
+    "offerName": "Offre semaine",
+    "offerTagline": "Coiffez-vous au calme",
+    "address": "Angré Djibi 1, Abidjan",
+    "yango": "Cut Care Styling",
+    "whatsapp": "2250717221754",
+    "whatsappDisplay": "+225 07 17 22 17 54",
+    "tiktok": "cutcare01",
+    "instagram": "cutcare01"
+  },
+  "booking": {
+    "depositRate": 0.3,
+    "depositRoundTo": 5,
+    "bookableWeekdays": [2, 3, 4, 5],
+    "hours": {
+      "2": ["09:00", "19:00"],
+      "3": ["09:00", "19:00"],
+      "4": ["09:00", "19:00"],
+      "5": ["09:00", "19:00"]
+    },
+    "hoursConfirmed": false,
+    "slotStepMin": 30,
+    "capacity": 2,
+    "leadTimeHours": 4,
+    "horizonDays": 45,
+    "pendingHoldMin": 30
+  },
+  "services": [
+    {"id": "tresses", "name": "Tresses", "price": 15000, "note": "Mèches incluses", "durationMin": 300, "img": "tresses-1", "focus": "55% 60%"},
+    {"id": "nattes", "name": "Nattes", "price": 10000, "note": "Mèches incluses", "durationMin": 150, "img": "nattes", "focus": "60% 42%"},
+    {"id": "tissage", "name": "Tissage", "price": 7900, "note": "Ouvert ou fermé", "options": ["Ouvert", "Fermé"], "durationMin": 120, "img": "tissage", "focus": "40% 58%"},
+    {"id": "micro-twist", "name": "Micro twist", "price": 15000, "durationMin": 300, "img": "micro-twist", "focus": "66% 60%"},
+    {"id": "micro-twist-locks", "name": "Micro twist locks", "price": 55000, "note": "Taille 14 · mèches incluses", "durationMin": 480, "img": "micro-twist", "focus": "70% 70%"},
+    {"id": "coupe", "name": "Coupe", "price": 12000, "durationMin": 60, "img": "coupe", "focus": "52% 60%"},
+    {"id": "maintenance", "name": "Maintenance", "price": 4000, "note": "Entretien de la coupe", "durationMin": 45, "img": "coupe", "focus": "50% 45%"}
+  ],
+  "durationsConfirmed": false,
+  "studentDiscount": {
+    "rate": 0.3333,
+    "roundTo": 50,
+    "label": "−33 %",
+    "eligible": ["tresses"],
+    "condition": "Élèves et étudiant·e·s, sur présentation de la carte scolaire ou étudiante (braids et tresses simples)."
+  },
+  "homeService": {
+    "enabled": true,
+    "feeConfirmed": false,
+    "note": "Frais de déplacement selon la zone, confirmés par le salon sur WhatsApp.",
+    "zones": [
+      {"id": "angre", "name": "Angré · Cocody", "fee": null},
+      {"id": "riviera", "name": "Riviera · Bingerville", "fee": null},
+      {"id": "deux-plateaux", "name": "II Plateaux · Vallons", "fee": null},
+      {"id": "plateau", "name": "Plateau · Adjamé", "fee": null},
+      {"id": "sud", "name": "Marcory · Koumassi · Treichville", "fee": null},
+      {"id": "yopougon", "name": "Yopougon", "fee": null},
+      {"id": "abobo", "name": "Abobo", "fee": null},
+      {"id": "autre", "name": "Autre quartier (à préciser)", "fee": null}
+    ]
+  },
+  "perks": [
+    {"id": "shampoing", "title": "Shampooing traitant & hydratant", "text": "Inclus dans chaque prestation."},
+    {"id": "collation", "title": "Pause collation offerte", "text": "Thé, café et douceurs pendant la pose."},
+    {"id": "etudiant", "title": "−33 % étudiant·e·s & élèves", "text": "Braids et tresses simples, sur présentation de la carte."},
+    {"id": "domicile", "title": "Service à domicile", "text": "La même qualité, chez vous."}
+  ],
+  "payments": {
+    "methods": [
+      {"id": "wave", "label": "Wave"},
+      {"id": "orange", "label": "Orange Money"}
+    ],
+    "manual": {"wave": null, "orange": null}
+  },
+  "policy": {
+    "deposit": "L’acompte de 30 % bloque votre créneau. Il est déduit du prix final, le reste se règle le jour du rendez-vous.",
+    "cancellation": "Report possible en prévenant le salon sur WhatsApp. Conditions d’annulation à confirmer par le salon."
+  }
+}
