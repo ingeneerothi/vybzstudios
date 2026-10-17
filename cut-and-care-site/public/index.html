@@ -16,6 +16,8 @@
   <meta property="og:image:height" content="630">
   <link rel="canonical" href="%PUBLIC_URL%/">
   <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <!-- JavaScript disponible : la page s'anime ; sinon (aperçu de fichiers…), elle s'affiche complète et immobile -->
+  <script>document.documentElement.classList.add('js')</script>
   <link rel="preload" href="fonts/great-vibes-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/cinzel-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/montserrat-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -59,7 +61,7 @@
     <nav class="nav__links" aria-label="Navigation principale">
       <a href="#offre">L’offre</a><a href="#tarifs">Tarifs</a><a href="#realisations">Réalisations</a><a href="#formules">Salon &amp; domicile</a><a href="#contact">Contact</a>
     </nav>
-    <a class="btn btn--sm" href="#reserver" data-book>Réserver</a>
+    <a class="btn btn--sm" href="https://wa.me/2250717221754?text=Bonjour%20Cut%20%26%20Care%20Styling%20%21%20Je%20souhaite%20r%C3%A9server%20une%20prestation%20%28offre%20semaine%29." data-book>Réserver</a>
     <button class="burger" type="button" aria-expanded="false" aria-controls="menu" data-burger><span></span><span></span><span class="visually-hidden">Menu</span></button>
   </header>
 
@@ -83,7 +85,7 @@
         </h1>
         <p class="hero__lead" data-hero-fade>Évitez l’affluence du week-end : tresses, nattes, tissage, micro twist et coupe à prix doux, au salon à Angré Djibi 1 ou chez vous.</p>
         <div class="hero__ctas" data-hero-fade>
-          <a class="btn" href="#reserver" data-book data-magnetic>Réserver ma place</a>
+          <a class="btn" href="https://wa.me/2250717221754?text=Bonjour%20Cut%20%26%20Care%20Styling%20%21%20Je%20souhaite%20r%C3%A9server%20une%20prestation%20%28offre%20semaine%29." data-book data-magnetic>Réserver ma place</a>
           <a class="btn btn--ghost" href="#tarifs" data-magnetic>Voir les tarifs</a>
         </div>
         <ul class="facts" data-hero-fade>
@@ -122,7 +124,7 @@
         <li data-day="off">Lun</li><li data-day="on">Mar</li><li data-day="on">Mer</li><li data-day="on">Jeu</li><li data-day="on">Ven</li><li data-day="we">Sam</li><li data-day="we">Dim</li>
       </ol>
       <p class="week__caption" data-reveal><span class="script">Coiffez-vous au calme</span> &amp; faites des économies</p>
-      <ul class="perks" data-perks></ul>
+      <ul class="perks" data-perks><!--perks--></ul>
     </section>
 
     <!-- TARIFS -->
@@ -132,8 +134,8 @@
         <h2 class="title" data-reveal-title>Nos prestations</h2>
         <p class="lead" data-reveal>Shampooing traitant &amp; hydratant inclus. Mèches incluses pour les tresses, les nattes et les micro twist locks.</p>
       </header>
-      <div class="cards" data-services></div>
-      <p class="tarifs__note" data-reveal data-durations-note></p>
+      <div class="cards" data-services><!--services--></div>
+      <p class="tarifs__note" data-reveal data-durations-note><!--durations--></p>
     </section>
 
     <!-- RÉALISATIONS -->
@@ -185,14 +187,14 @@
           <h3>Au salon</h3>
           <p><strong>Angré Djibi 1</strong>, Abidjan. Sur Yango, tapez « Cut Care Styling ».</p>
           <ul><li>Ambiance calme, pause collation offerte</li><li>Du mardi au vendredi en ligne</li></ul>
-          <a class="btn btn--ghost" href="#reserver" data-book data-book-mode="salon">Réserver au salon</a>
+          <a class="btn btn--ghost" href="https://wa.me/2250717221754?text=Bonjour%20Cut%20%26%20Care%20Styling%20%21%20Je%20souhaite%20r%C3%A9server%20au%20salon." data-book data-book-mode="salon">Réserver au salon</a>
         </article>
         <article class="duo__card duo__card--dark" data-duo>
           <svg class="duo__icon" viewBox="0 0 64 64" aria-hidden="true"><path data-draw d="M8 30 32 10l24 20"/><path data-draw d="M14 26v30h36V26"/><path data-draw d="M27 56V41h10v15"/></svg>
           <h3>À domicile</h3>
           <p><strong>On vient chez vous</strong>, avec le même soin et le même matériel.</p>
           <ul><li>Frais de déplacement selon le quartier</li><li>Confirmation par le salon sur WhatsApp</li></ul>
-          <a class="btn btn--light" href="#reserver" data-book data-book-mode="domicile">Réserver à domicile</a>
+          <a class="btn btn--light" href="https://wa.me/2250717221754?text=Bonjour%20Cut%20%26%20Care%20Styling%20%21%20Je%20souhaite%20r%C3%A9server%20%C3%A0%20domicile." data-book data-book-mode="domicile">Réserver à domicile</a>
         </article>
       </div>
     </section>
@@ -201,7 +203,7 @@
     <section class="pub section" id="video">
       <div class="pub__phone">
         <div class="phone">
-          <video src="video/pub-offre-semaine.mp4" poster="video/pub-offre-semaine.webp" muted loop playsinline preload="none" data-video aria-label="Publicité de l’offre semaine Cut &amp; Care Styling"></video>
+          <video src="video/pub-offre-semaine.mp4" poster="video/pub-offre-semaine.webp" muted loop playsinline controls preload="none" data-video aria-label="Publicité de l’offre semaine Cut &amp; Care Styling"></video>
           <button class="phone__sound" type="button" data-sound aria-pressed="false">Activer le son</button>
         </div>
       </div>
@@ -217,7 +219,7 @@
     <section class="reserver section" id="reserver">
       <div class="reserver__ring" data-ring>
         <svg viewBox="0 0 220 220" aria-hidden="true"><circle class="ring-bg" cx="110" cy="110" r="96"/><circle class="ring-fill" cx="110" cy="110" r="96" data-ring-fill/></svg>
-        <p class="ring-value"><span data-ring-count>0</span><small>%</small></p>
+        <p class="ring-value"><span data-ring-count>30</span><small>%</small></p>
         <p class="ring-label">d’acompte</p>
       </div>
       <div class="reserver__copy">
@@ -228,7 +230,7 @@
           <li><b>2</b><span>Réglez <strong>30 % d’acompte</strong> par Wave ou Orange Money.</span></li>
           <li><b>3</b><span>Le reste se paie le jour du rendez-vous.</span></li>
         </ol>
-        <button class="btn btn--xl" type="button" data-book data-magnetic>Réserver maintenant</button>
+        <a class="btn btn--xl" href="https://wa.me/2250717221754?text=Bonjour%20Cut%20%26%20Care%20Styling%20%21%20Je%20souhaite%20r%C3%A9server%20une%20prestation%20%28offre%20semaine%29." data-book data-magnetic>Réserver maintenant</a>
         <p class="small" data-reveal>Week-end et demandes spéciales : <a href="https://wa.me/2250717221754" rel="noopener" target="_blank">écrivez-nous sur WhatsApp</a>.</p>
       </div>
     </section>
@@ -244,9 +246,9 @@
     <div class="footer__cols">
       <div><h3>Nous trouver</h3><p>Angré Djibi 1, Abidjan<br>Sur Yango : « Cut Care Styling »</p></div>
       <div><h3>Nous écrire</h3><p><a href="https://wa.me/2250717221754" rel="noopener" target="_blank">WhatsApp +225 07 17 22 17 54</a><br><a href="https://www.tiktok.com/@cutcare01" rel="noopener" target="_blank">TikTok</a> · <a href="https://www.instagram.com/cutcare01/" rel="noopener" target="_blank">Instagram</a> @cutcare01</p></div>
-      <div><h3>Horaires</h3><p data-hours></p></div>
+      <div><h3>Horaires</h3><p data-hours><!--hours--></p></div>
     </div>
-    <p class="footer__legal">© <span data-year></span> Cut &amp; Care Styling · Paiement sécurisé par Wave et Orange Money : le salon ne vous demandera jamais votre code secret.</p>
+    <p class="footer__legal">© <span data-year><!--year--></span> Cut &amp; Care Styling · Paiement sécurisé par Wave et Orange Money : le salon ne vous demandera jamais votre code secret.</p>
   </footer>
 
   <!-- TUNNEL DE RÉSERVATION -->

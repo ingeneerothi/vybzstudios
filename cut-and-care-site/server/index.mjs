@@ -2,7 +2,7 @@
 // Zéro dépendance (Node >= 20). Démarrage : `npm start` (lit .env si présent).
 import {createReadStream, readFileSync, statSync} from 'node:fs';
 import http from 'node:http';
-import {randomInt, randomUUID} from 'node:crypto';
+import {createHash, randomInt, randomUUID} from 'node:crypto';
 import {dirname, extname, join, normalize, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {loadEnv} from './env.mjs';
@@ -13,6 +13,7 @@ import * as wave from './payments/wave.mjs';
 import * as orange from './payments/orange.mjs';
 import {QuoteError, quote} from '../public/js/pricing.mjs';
 import {daySlots, isSlotAvailable, parseDate} from '../public/js/slots.mjs';
+import {fillPage} from '../public/js/render.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC = join(ROOT, 'public');
@@ -28,13 +29,17 @@ const manual = Boolean(catalog.payments.manual.wave || catalog.payments.manual.o
 const DEMO = env.DEMO_PAYMENTS === 'true' || (env.DEMO_PAYMENTS !== 'false' && !providers.wave && !providers.orange && !manual);
 
 // ——— utilitaires HTTP ———
+// scriptHashes : empreintes des petits scripts écrits dans la page (ex. la classe « js » du <head>)
+const csp = (scriptHashes = []) =>
+  `default-src 'self'; script-src 'self'${scriptHashes.map((h) => ` '${h}'`).join('')}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`;
+const inlineScriptHashes = (html) => [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => `sha256-${createHash('sha256').update(m[1]).digest('base64')}`);
+
 const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'X-Frame-Options': 'DENY',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-  'Content-Security-Policy':
-    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+  'Content-Security-Policy': csp(),
 };
 
 function send(res, status, body, headers = {}) {
@@ -254,9 +259,10 @@ function serveStatic(req, res, pathname) {
   if (!st.isFile()) return send(res, 404, '<h1>Page introuvable</h1>');
   const type = TYPES[extname(file)] ?? 'application/octet-stream';
   if (extname(file) === '.html') {
-    // les aperçus de lien (WhatsApp, Facebook) exigent des adresses absolues : on injecte PUBLIC_URL
-    const html = readFileSync(file, 'utf8').replaceAll('%PUBLIC_URL%', PUBLIC_URL);
-    return send(res, 200, req.method === 'HEAD' ? '' : html, {'Cache-Control': 'no-cache'});
+    // sections du catalogue écrites dans la page (lisible sans JavaScript, référencement) ;
+    // adresses absolues pour les aperçus de lien (WhatsApp, Facebook)
+    const html = fillPage(readFileSync(file, 'utf8'), catalog).replaceAll('%PUBLIC_URL%', PUBLIC_URL);
+    return send(res, 200, req.method === 'HEAD' ? '' : html, {'Cache-Control': 'no-cache', 'Content-Security-Policy': csp(inlineScriptHashes(html))});
   }
   const longCache = /^\/(vendor|fonts|img|video)\//.test(pathname);
   const headers = {...SECURITY_HEADERS, 'Content-Type': type, 'Cache-Control': longCache ? 'public, max-age=604800' : 'no-cache', 'Accept-Ranges': 'bytes'};

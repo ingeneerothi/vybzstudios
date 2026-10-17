@@ -127,6 +127,8 @@ Chaque section a sa timeline GSAP, jouée à l'entrée dans l'écran ou pilotée
 
 Les personnes qui ont activé « réduire les animations » sur leur téléphone voient la page directement dans son état final.
 
+Sans JavaScript (aperçu de fichiers sur iPhone, moteurs de recherche), la page reste complète : le serveur y écrit les prix et les photos, des animations CSS prennent le relais (titre, bandeau, vapeur, apparitions au défilement) et chaque bouton « Réserver » ouvre WhatsApp avec un message prérempli.
+
 ## À confirmer par le salon
 
 Plusieurs valeurs du catalogue sont provisoires (`hoursConfirmed`, `durationsConfirmed`, `feeConfirmed` à `false`) : horaires, durées, frais de déplacement par quartier, conditions d'annulation et de remboursement de l'acompte.

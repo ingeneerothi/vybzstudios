@@ -52,7 +52,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-body.is-loading {
+/* verrouillé seulement quand le JavaScript joue l'ouverture */
+.js body.is-loading {
   overflow: hidden;
   /* filet de sécurité : si le JS ne démarre pas, la page se déverrouille seule */
   animation: unlock 0s 6s forwards;
@@ -317,7 +318,7 @@ p {
   position: fixed;
   inset: 0;
   z-index: 150;
-  display: grid;
+  display: none;
   place-items: center;
   background: radial-gradient(120% 80% at 50% 20%, var(--cream-light), var(--cream) 60%, var(--sand));
   animation: loader-fallback 0.5s ease 6s forwards;
@@ -346,9 +347,8 @@ p {
   stroke-width: 2;
 }
 
-.no-js .loader,
-.loader[hidden] {
-  display: none;
+.js .loader {
+  display: grid;
 }
 
 /* ——— Curseur (bureau) ——— */
@@ -2382,6 +2382,300 @@ p {
 /* Pages rendues par le serveur (démo, administration) */
 .sp-card {
   max-width: 520px;
+}
+
+/* ——— Sans JavaScript (aperçu de fichiers sur iPhone, moteurs de recherche) ———
+   La page reste complète : semaine remplie, anneau à 30 %, galerie à faire défiler au doigt,
+   réservation par WhatsApp (liens de secours des boutons). Le mouvement passe par le CSS :
+   entrée du titre, bandeau, vapeur, et apparitions liées au défilement là où le navigateur
+   connaît animation-timeline. */
+html:not(.js) .burger,
+html:not(.js) [data-sound] {
+  display: none;
+}
+
+html:not(.js) .week li[data-day='on'] {
+  background: linear-gradient(180deg, #c06a32, var(--brown-deep));
+  border-color: transparent;
+  color: var(--cream-light);
+}
+
+html:not(.js) .week li[data-day='we'],
+html:not(.js) .week li[data-day='off'] {
+  opacity: 0.5;
+}
+
+html:not(.js) .week li[data-day='we'] {
+  text-decoration: line-through 2px var(--terracotta);
+}
+
+html:not(.js) .reserver .ring-fill {
+  /* 2π × 96 : anneau rempli à 30 % */
+  stroke-dasharray: 603.2;
+  stroke-dashoffset: 422.2;
+}
+
+html:not(.js) .galerie__pin {
+  height: auto;
+  padding-top: clamp(80px, 12vw, 150px);
+}
+
+html:not(.js) .galerie__track {
+  width: auto;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 12px;
+}
+
+html:not(.js) .shot {
+  scroll-snap-align: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.js) [data-hero-line] {
+    animation: nj-rise 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  html:not(.js) .line-mask:nth-child(2) [data-hero-line] {
+    animation-delay: 0.14s;
+  }
+
+  html:not(.js) .hero .eyebrow {
+    animation: nj-fade 0.6s ease-out 0.05s both;
+  }
+
+  html:not(.js) [data-hero-fade] {
+    animation: nj-up 0.85s cubic-bezier(0.215, 0.61, 0.355, 1) 0.5s both;
+  }
+
+  html:not(.js) .hero__ctas {
+    animation-delay: 0.6s;
+  }
+
+  html:not(.js) .facts {
+    animation-delay: 0.7s;
+  }
+
+  html:not(.js) [data-hero-arch] {
+    animation: nj-clip 1.35s cubic-bezier(0.87, 0, 0.13, 1) 0.15s both;
+  }
+
+  html:not(.js) [data-hero-img] {
+    animation: nj-zoom 2.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+  }
+
+  html:not(.js) .arch-line [data-draw] {
+    stroke-dasharray: 1600;
+    animation: nj-draw 1.7s ease-in-out 0.1s both;
+  }
+
+  /* apparition puis respiration : deux propriétés distinctes (transform / translate), pas de conflit */
+  html:not(.js) [data-chip] {
+    animation:
+      nj-pop 0.6s cubic-bezier(0.215, 0.61, 0.355, 1) 1.05s both,
+      nj-float 2.2s ease-in-out 1.8s infinite alternate;
+  }
+
+  html:not(.js) .chip--b {
+    animation-delay: 1.12s, 2s;
+  }
+
+  html:not(.js) .chip--c {
+    animation-delay: 1.19s, 2.2s;
+  }
+
+  html:not(.js) .marquee__track {
+    animation: nj-marquee 28s linear infinite;
+  }
+
+  html:not(.js) .steam path {
+    stroke-dasharray: 170;
+    animation: nj-steam 3.4s ease-in-out infinite both;
+  }
+
+  html:not(.js) .steam path:nth-child(2) {
+    animation-delay: 1.1s;
+  }
+
+  html:not(.js) .steam path:nth-child(3) {
+    animation-delay: 2.2s;
+  }
+
+  @supports (animation-timeline: view()) {
+    html:not(.js) :is([data-reveal], [data-reveal-title], .perk, .week li, .howto li, .ticks li) {
+      animation: nj-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+
+    html:not(.js) .svc {
+      animation: nj-depth linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+
+    html:not(.js) .duo__card {
+      animation: nj-left linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+
+    html:not(.js) .duo__card--dark {
+      animation-name: nj-right;
+    }
+
+    html:not(.js) .shot {
+      animation: nj-shot linear both;
+      animation-timeline: view(inline);
+      animation-range: entry 0% cover 40%;
+    }
+
+    html:not(.js) .phone {
+      animation: nj-phone linear both;
+      animation-timeline: view();
+    }
+
+    html:not(.js) .reserver .ring-fill {
+      animation: nj-ring linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 50%;
+    }
+  }
+}
+
+@keyframes nj-rise {
+  from {
+    transform: translateY(115%);
+  }
+}
+
+@keyframes nj-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes nj-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+@keyframes nj-clip {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes nj-zoom {
+  from {
+    transform: scale(1.38);
+  }
+
+  to {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes nj-draw {
+  from {
+    stroke-dashoffset: 1600;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes nj-pop {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0);
+  }
+}
+
+@keyframes nj-float {
+  to {
+    translate: 0 -10px;
+  }
+}
+
+@keyframes nj-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes nj-steam {
+  0% {
+    stroke-dashoffset: 170;
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  35%,
+  65% {
+    opacity: 0.85;
+  }
+
+  100% {
+    stroke-dashoffset: -170;
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes nj-depth {
+  from {
+    opacity: 0;
+    transform: perspective(1200px) translateY(80px) rotateX(-20deg);
+  }
+}
+
+@keyframes nj-left {
+  from {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+}
+
+@keyframes nj-right {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+}
+
+@keyframes nj-shot {
+  from {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes nj-phone {
+  from {
+    transform: perspective(1200px) rotateY(26deg) rotateX(12deg) translateY(60px);
+  }
+
+  to {
+    transform: perspective(1200px) rotateY(-10deg) translateY(-40px);
+  }
+}
+
+@keyframes nj-ring {
+  from {
+    stroke-dashoffset: 603.2;
+  }
+
+  to {
+    stroke-dashoffset: 422.2;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,7 @@
 // Page d'accueil : rendu depuis le catalogue + chorégraphie (GSAP, ScrollTrigger, SplitText, Lenis).
 // Chaque section = une timeline ; au scroll elle est soit jouée une fois, soit « seekée » (scrub).
-import {formatDuration, formatFCFA} from './pricing.mjs';
+import {formatFCFA} from './pricing.mjs';
+import {durationsNote, esc, hoursHtml, renderPerks, renderServices} from './render.mjs';
 import * as fx from './fx.mjs';
 import * as api from './api.mjs';
 import {initBooking} from './booking.mjs';
@@ -11,7 +12,6 @@ CustomEase.create('silk', 'M0,0 C0.22,1 0.36,1 1,1');
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[c]);
 
 const loader = $('.loader');
 // Le CSS cache le chargeur après 6 s si le JS échoue ; on coupe ce filet seulement au moment de jouer.
@@ -23,36 +23,15 @@ const unlockPage = () => {
 const catalog = window.__CATALOG__ ?? (await (await fetch('data/catalog.json')).json());
 
 // ——— Rendu depuis le catalogue (une seule source pour les prix) ———
-const PERK_ICONS = {
-  shampoing: '<path d="M24 6c6 9 11 15 11 22a11 11 0 0 1-22 0c0-7 5-13 11-22Z"/><path d="M19 30a5 5 0 0 0 5 5"/>',
-  collation: '<path d="M10 20h24v8a12 12 0 0 1-24 0Z"/><path d="M34 22h3a5 5 0 0 1 0 10h-4"/><path d="M17 8c-2 3 2 5 0 8M24 8c-2 3 2 5 0 8"/><path d="M8 42h30"/>',
-  etudiant: '<path d="M4 18 24 9l20 9-20 9Z"/><path d="M12 22v10c0 3 6 6 12 6s12-3 12-6V22"/><path d="M44 18v12"/>',
-  domicile: '<path d="M6 22 24 7l18 15"/><path d="M11 19v22h26V19"/><path d="M20 41V30h8v11"/>',
+// Le serveur écrit déjà ces sections dans la page ; on ne les construit ici que si elles sont vides.
+const fill = (sel, html) => {
+  const el = $(sel);
+  if (!el.textContent.trim()) el.innerHTML = html;
 };
-$('[data-perks]').innerHTML = catalog.perks
-  .map((p) => `<li class="perk"><svg viewBox="0 0 48 48" aria-hidden="true">${PERK_ICONS[p.id] ?? ''}</svg><h3>${esc(p.title)}</h3><p>${esc(p.text)}</p></li>`)
-  .join('');
-
-$('[data-services]').innerHTML = catalog.services
-  .map(
-    (s) => `<article class="svc" data-svc="${esc(s.id)}">
-  <div class="svc__arch arch"><img src="${esc(api.asset(`img/${s.img}-640.webp`))}" srcset="${esc(api.asset(`img/${s.img}-640.webp`))} 640w, ${esc(api.asset(`img/${s.img}-1280.webp`))} 1280w" sizes="(min-width: 1100px) 26vw, (min-width: 760px) 40vw, 80vw" alt="${esc(s.name)} — réalisation Cut &amp; Care Styling" loading="lazy" width="640" height="1138" style="object-position:${esc(s.focus ?? '50% 50%')}"></div>
-  ${catalog.studentDiscount.eligible.includes(s.id) ? `<span class="svc__badge">${esc(catalog.studentDiscount.label)}<small>ÉTUDIANT·E·S</small></span>` : ''}
-  <div class="svc__band">
-    <h3 class="svc__name">${esc(s.name)}</h3>
-    <p class="svc__price"><span data-price="${s.price}">${formatFCFA(s.price, {suffix: ''})}</span><small>F CFA</small></p>
-    <p class="svc__note">${s.note ? `${esc(s.note)} · ` : ''}≈ ${formatDuration(s.durationMin)}</p>
-    <button type="button" class="btn btn--light btn--sm" data-book data-book-service="${esc(s.id)}">Réserver</button>
-  </div>
-</article>`,
-  )
-  .join('');
-
-$('[data-durations-note]').textContent = `Tarifs de l’offre semaine (mardi → vendredi). Durées indicatives${catalog.durationsConfirmed ? '' : ', confirmées par le salon'}. ${catalog.studentDiscount.condition}`;
-const DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-const hours = catalog.booking.hours;
-const wd = catalog.booking.bookableWeekdays;
-$('[data-hours]').innerHTML = `${DAYS[wd[0]][0].toUpperCase()}${DAYS[wd[0]].slice(1)} → ${DAYS[wd[wd.length - 1]]} : ${hours[wd[0]].join(' – ').replace(/:/g, ' h ').replace(/ h 00/g, ' h')}<br>Week-end : réservation sur WhatsApp`;
+fill('[data-perks]', renderPerks(catalog));
+fill('[data-services]', renderServices(catalog, {asset: api.asset}));
+fill('[data-durations-note]', esc(durationsNote(catalog)));
+fill('[data-hours]', hoursHtml(catalog));
 $('[data-year]').textContent = String(new Date().getFullYear());
 
 // ——— Défilement doux ———
@@ -151,8 +130,9 @@ soundBtn.addEventListener('click', () => {
   soundBtn.textContent = video.muted ? 'Activer le son' : 'Couper le son';
   if (video.paused) video.play().catch(() => {});
 });
-if (fx.reduced) video.controls = true;
-else {
+// commandes visibles sans JavaScript (attribut dans le HTML) ; ici, lecture automatique à l'écran
+video.controls = fx.reduced;
+if (!fx.reduced) {
   new IntersectionObserver(([en]) => {
     if (en.isIntersecting) video.play().catch(() => {});
     else video.pause();

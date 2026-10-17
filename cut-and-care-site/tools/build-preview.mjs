@@ -1,12 +1,15 @@
 // Aperçu autonome : tout le site (styles, polices, photos, vidéo, scripts) dans UN fichier HTML,
 // à ouvrir sans serveur (téléphone, WhatsApp, e-mail). Le tunnel y tourne en démo locale.
+// Les photos et les prix sont écrits dans le HTML : sur iPhone, l'aperçu de fichiers (sans JavaScript)
+// affiche la page complète, animée en CSS ; dans un navigateur, les animations GSAP prennent le relais.
 // Usage : node tools/build-preview.mjs [sortie.html]   (ffmpeg facultatif : allège la vidéo)
 import {execFileSync} from 'node:child_process';
-import {mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
+import {mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {build} from 'esbuild';
+import {fillPage} from '../public/js/render.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PUB = join(ROOT, 'public');
@@ -18,11 +21,13 @@ const read = (rel) => readFileSync(join(PUB, rel), 'utf8');
 // un script en ligne ne doit jamais contenir « </script »
 const inlineJs = (code) => code.replace(/<\/script/gi, '<\\/script');
 
-// Chaque fichier n'est intégré qu'UNE fois : les photos 640 px servent aussi pour les clés 1280 px,
-// et la page reçoit ses images au démarrage (attributs data-asset-*), sans copie en double.
-const assets = {};
-for (const f of readdirSync(join(PUB, 'img'))) if (/-640\.webp$/.test(f) || f === 'favicon.svg') assets[`img/${f}`] = dataUri(join(PUB, 'img', f));
-assets['video/pub-offre-semaine.webp'] = dataUri(join(PUB, 'video/pub-offre-semaine.webp'));
+// Photos : la version 640 px sert pour toutes les tailles (fichier plus léger)
+const cache = new Map();
+const image = (path) => {
+  const small = path.replace(/-1280\.webp$/, '-640.webp');
+  if (!cache.has(small)) cache.set(small, dataUri(join(PUB, small)));
+  return cache.get(small);
+};
 
 // Vidéo : copie allégée si ffmpeg est disponible
 let video = join(PUB, 'video/pub-offre-semaine.mp4');
@@ -33,7 +38,6 @@ try {
 } catch {
   console.warn('ffmpeg indisponible : vidéo intégrée en qualité d’origine');
 }
-assets['video/pub-offre-semaine.mp4'] = dataUri(video);
 
 const fontsCss = read('css/fonts.css').replace(/url\('\.\.\/fonts\/([^']+)'\)/g, (_, f) => `url('${dataUri(join(PUB, 'fonts', f))}')`);
 const catalog = JSON.parse(read('data/catalog.json'));
@@ -41,19 +45,23 @@ const catalog = JSON.parse(read('data/catalog.json'));
 const bundle = await build({entryPoints: [join(PUB, 'js/app.mjs')], bundle: true, format: 'esm', target: 'es2022', minify: true, write: false});
 const appJs = bundle.outputFiles[0].text;
 
+// Le tunnel affiche les photos des prestations : on les reprend des cartes déjà dans la page (pas de copie).
 const boot = `window.__CATALOG__=${JSON.stringify(catalog)};
-window.__ASSETS__=${JSON.stringify(assets)};
-for (const k of Object.keys(window.__ASSETS__)) if (k.endsWith('-640.webp')) window.__ASSETS__[k.replace('-640.', '-1280.')] = window.__ASSETS__[k];
-for (const el of document.querySelectorAll('[data-asset-src]')) el.src = window.__ASSETS__[el.dataset.assetSrc];
-for (const el of document.querySelectorAll('[data-asset-poster]')) el.poster = window.__ASSETS__[el.dataset.assetPoster];`;
+window.__ASSETS__={};
+for (const s of window.__CATALOG__.services) {
+  const img = document.querySelector('.svc[data-svc="' + s.id + '"] img');
+  if (img) window.__ASSETS__['img/' + s.img + '-640.webp'] = window.__ASSETS__['img/' + s.img + '-1280.webp'] = img.src;
+}`;
 
-let html = read('index.html')
+let html = fillPage(read('index.html'), catalog, {asset: image, srcset: false})
   .replace(/^\s*<link rel="preload"[^>]*>\n/gm, '')
   .replace(/^.*%PUBLIC_URL%.*\n/gm, '')
-  .replace('href="img/favicon.svg"', () => `href="${assets['img/favicon.svg']}"`)
+  .replace('href="img/favicon.svg"', () => `href="${dataUri(join(PUB, 'img/favicon.svg'))}"`)
   .replace(/ srcset="[^"]*"/g, '')
-  .replace(/ src="((?:img|video)\/[^"]+)"/g, ' data-asset-src="$1"')
-  .replace(/ poster="([^"]+)"/g, ' data-asset-poster="$1"')
+  .replace(/ sizes="[^"]*"/g, '')
+  .replace(/ src="(img\/[^"]+\.webp)"/g, (_, p) => ` src="${image(p)}"`)
+  .replace(' src="video/pub-offre-semaine.mp4"', () => ` src="${dataUri(video)}"`)
+  .replace(' poster="video/pub-offre-semaine.webp"', () => ` poster="${dataUri(join(PUB, 'video/pub-offre-semaine.webp'))}"`)
   .replace('<link rel="stylesheet" href="css/fonts.css">', () => `<style>${fontsCss}</style>`)
   .replace('<link rel="stylesheet" href="vendor/lenis.css">', () => `<style>${read('vendor/lenis.css')}</style>`)
   .replace('<link rel="stylesheet" href="css/style.css">', () => `<style>${read('css/style.css')}</style>`)
