@@ -1,0 +1,7 @@
+node_modules/
+out/*
+!out/oscan-presentation.mp4
+scripts/.cache/
+scripts/models/
+__pycache__/
+.DS_Store
