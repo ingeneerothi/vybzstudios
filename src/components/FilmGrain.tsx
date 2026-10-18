@@ -4,12 +4,16 @@ import {AbsoluteFill, Img, random, staticFile, useCurrentFrame} from 'remotion';
 const TILE = 512;
 const VARIANTS = 6;
 
-/** Grain de film animé : une tuile de bruit tirée au hasard (déterministe) à chaque frame. */
-export const FilmGrain: React.FC<{opacity?: number}> = ({opacity = 0.22}) => {
-	const frame = useCurrentFrame();
-	const variant = Math.floor(random(`grain-v-${frame}`) * VARIANTS);
-	const ox = Math.floor(random(`grain-x-${frame}`) * TILE);
-	const oy = Math.floor(random(`grain-y-${frame}`) * TILE);
+/** Renouvellement du grain toutes les N frames (30 Hz à 60 fps) : plus « film », et bien
+ *  moins de bruit à encoder qu'un grain différent à chaque frame. */
+const CADENCE = 2;
+
+/** Grain de film animé : une tuile de bruit tirée au hasard (déterministe). */
+export const FilmGrain: React.FC<{opacity?: number}> = ({opacity = 0.18}) => {
+	const tick = Math.floor(useCurrentFrame() / CADENCE);
+	const variant = Math.floor(random(`grain-v-${tick}`) * VARIANTS);
+	const ox = Math.floor(random(`grain-x-${tick}`) * TILE);
+	const oy = Math.floor(random(`grain-y-${tick}`) * TILE);
 	const src = staticFile(`textures/grain-${variant}.png`);
 
 	const tiles = [];

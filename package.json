@@ -8,8 +8,8 @@
     "studio": "remotion studio",
     "assets": "python3 scripts/extract_assets.py && node scripts/trace_lineart.mjs",
     "still": "remotion still OscanIntro out/still.png",
-    "render": "remotion render OscanIntro out/oscan-presentation.mp4 --codec=h264 --crf=16 --x264-preset=slow --color-space=bt709 --audio-bitrate=320k",
-    "render:4k": "remotion render OscanIntro out/oscan-presentation-4k.mp4 --codec=h264 --crf=17 --color-space=bt709 --audio-bitrate=320k --scale=2",
+    "render": "remotion render OscanIntro out/oscan-presentation.mp4 --codec=h264 --crf=18 --x264-preset=slow --color-space=bt709 --audio-bitrate=320k",
+    "render:4k": "remotion render OscanIntro out/oscan-presentation-4k.mp4 --codec=h264 --crf=20 --color-space=bt709 --audio-bitrate=320k --scale=2",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
