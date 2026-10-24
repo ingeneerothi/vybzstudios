@@ -1,0 +1,363 @@
+{
+  "reglages": {
+    "slogan": "Le style commence par les pieds.",
+    "chaussureVedette": "nike-air-max-95-corteiz-kaki",
+    "modePaiement": "À la livraison"
+  },
+  "numerosWhatsapp": [
+    {
+      "nom": "Boutique",
+      "numero": "2250506523816",
+      "actif": true
+    }
+  ],
+  "zones": [
+    {
+      "nom": "Abidjan",
+      "frais": 2000,
+      "details": "commune_quartier"
+    },
+    {
+      "nom": "Grand-Bassam",
+      "frais": 3000,
+      "details": "quartier"
+    },
+    {
+      "nom": "Songon",
+      "frais": 3000,
+      "details": "quartier"
+    },
+    {
+      "nom": "Expédition à l'intérieur du pays",
+      "frais": 3000,
+      "details": "ville"
+    }
+  ],
+  "chaussures": [
+    {
+      "slug": "asics-gel-kayano-14-noir-argent",
+      "source": "03.jpg",
+      "nom": "Gel-Kayano 14 Noir Argent",
+      "marque": "ASICS",
+      "couleur": "Noir / argent",
+      "prix": 22000,
+      "description": "La Gel-Kayano 14 en noir total, relevée de lignes argentées. Une silhouette running des années 2000, sobre et facile à porter avec tout.",
+      "images": [
+        "/chaussures/asics-gel-kayano-14-noir-argent/01.webp",
+        "/chaussures/asics-gel-kayano-14-noir-argent/02.webp",
+        "/chaussures/asics-gel-kayano-14-noir-argent/03.webp",
+        "/chaussures/asics-gel-kayano-14-noir-argent/04.webp",
+        "/chaussures/asics-gel-kayano-14-noir-argent/05.webp"
+      ]
+    },
+    {
+      "slug": "nike-zoom-vomero-5-noir",
+      "source": "04.jpg",
+      "nom": "Zoom Vomero 5 Triple Noir",
+      "marque": "Nike",
+      "couleur": "Noir",
+      "prix": 22000,
+      "description": "La Zoom Vomero 5 entièrement noire : mesh, empiècements superposés et talon ajouré. Un look running rétro discret qui va partout.",
+      "images": [
+        "/chaussures/nike-zoom-vomero-5-noir/01.webp",
+        "/chaussures/nike-zoom-vomero-5-noir/02.webp",
+        "/chaussures/nike-zoom-vomero-5-noir/03.webp"
+      ]
+    },
+    {
+      "slug": "vans-style-36-cloutee-bleu",
+      "source": "05.jpg",
+      "nom": "Style 36 Cloutée Bleu",
+      "marque": "Vans",
+      "couleur": "Bleu / noir",
+      "prix": 28000,
+      "description": "La Style 36 revisitée : toile bleue, daim noir et bande latérale ornée de clous et de perles. Sa semelle effet vieilli lui donne un style déjà porté, très streetwear.",
+      "images": [
+        "/chaussures/vans-style-36-cloutee-bleu/01.webp",
+        "/chaussures/vans-style-36-cloutee-bleu/02.webp",
+        "/chaussures/vans-style-36-cloutee-bleu/03.webp"
+      ]
+    },
+    {
+      "slug": "vans-style-36-cloutee-marron",
+      "source": "06.jpg",
+      "nom": "Style 36 Cloutée Camel",
+      "marque": "Vans",
+      "couleur": "Camel / marron",
+      "prix": 28000,
+      "description": "La Style 36 cloutée en camel et marron, avec sa bande latérale blanche perlée. Semelle effet vieilli : une paire chaude et originale.",
+      "images": [
+        "/chaussures/vans-style-36-cloutee-marron/01.webp",
+        "/chaussures/vans-style-36-cloutee-marron/02.webp"
+      ],
+      "exclureVues": [
+        3,
+        4
+      ]
+    },
+    {
+      "slug": "numeris-noir",
+      "source": "07.jpg",
+      "nom": "Numeris Noir",
+      "marque": "Numeris",
+      "couleur": "Noir",
+      "prix": 35000,
+      "description": "Une sneaker basse tout en noir, coutures blanches contrastées et gros lacets épais. Sa semelle crantée épaisse lui donne une allure affirmée.",
+      "images": [
+        "/chaussures/numeris-noir/01.webp",
+        "/chaussures/numeris-noir/02.webp"
+      ],
+      "exclureVues": [
+        3
+      ]
+    },
+    {
+      "slug": "nike-air-force-1-noir",
+      "source": "08.jpg",
+      "nom": "Air Force 1 Triple Noir",
+      "marque": "Nike",
+      "couleur": "Noir",
+      "prix": 13000,
+      "description": "L'Air Force 1 en version triple noir, de la semelle aux lacets. Un classique indémodable, simple et efficace.",
+      "images": [
+        "/chaussures/nike-air-force-1-noir/01.webp",
+        "/chaussures/nike-air-force-1-noir/02.webp"
+      ],
+      "exclureVues": [
+        2
+      ]
+    },
+    {
+      "slug": "asics-gel-nyc-marine",
+      "source": "09.jpg",
+      "nom": "Gel-NYC Marine",
+      "marque": "ASICS",
+      "couleur": "Bleu marine / gris",
+      "prix": 22000,
+      "description": "La Gel-NYC mélange daim bleu marine, mesh clair et empiècements argentés. Une running rétro élégante, facile à associer.",
+      "images": [
+        "/chaussures/asics-gel-nyc-marine/01.webp",
+        "/chaussures/asics-gel-nyc-marine/02.webp",
+        "/chaussures/asics-gel-nyc-marine/03.webp",
+        "/chaussures/asics-gel-nyc-marine/04.webp",
+        "/chaussures/asics-gel-nyc-marine/05.webp"
+      ]
+    },
+    {
+      "slug": "asics-gel-kayano-14-rouge",
+      "source": "10.jpg",
+      "nom": "Gel-Kayano 14 Rouge",
+      "marque": "ASICS",
+      "couleur": "Blanc / argent / rouge",
+      "prix": 21000,
+      "description": "Blanc, argent et reflets rouges : la Gel-Kayano 14 dans un coloris qui attire l'œil. L'esprit running des années 2000, version brillante.",
+      "images": [
+        "/chaussures/asics-gel-kayano-14-rouge/01.webp",
+        "/chaussures/asics-gel-kayano-14-rouge/02.webp"
+      ],
+      "exclureVues": [
+        3
+      ]
+    },
+    {
+      "slug": "asics-gel-kayano-14-vert",
+      "source": "11.jpg",
+      "nom": "Gel-Kayano 14 Vert",
+      "marque": "ASICS",
+      "couleur": "Blanc / argent / vert",
+      "prix": 21000,
+      "description": "La Gel-Kayano 14 en blanc et argent, rehaussée de vert vif au talon et sur la semelle. Fraîche, lumineuse, impossible à rater.",
+      "images": [
+        "/chaussures/asics-gel-kayano-14-vert/01.webp",
+        "/chaussures/asics-gel-kayano-14-vert/02.webp",
+        "/chaussures/asics-gel-kayano-14-vert/03.webp",
+        "/chaussures/asics-gel-kayano-14-vert/04.webp",
+        "/chaussures/asics-gel-kayano-14-vert/05.webp",
+        "/chaussures/asics-gel-kayano-14-vert/06.webp"
+      ]
+    },
+    {
+      "slug": "numeris-camo",
+      "source": "12.jpg",
+      "nom": "Numeris Camo",
+      "marque": "Numeris",
+      "couleur": "Noir / gris",
+      "prix": 35000,
+      "description": "Tige en toile à motif camouflage noir et gris, bout et talon blancs, gros lacets blancs. Une paire qui se remarque sans en faire trop.",
+      "images": [
+        "/chaussures/numeris-camo/01.webp",
+        "/chaussures/numeris-camo/02.webp",
+        "/chaussures/numeris-camo/03.webp"
+      ]
+    },
+    {
+      "slug": "nike-shox-tl-noir",
+      "source": "13.jpg",
+      "nom": "Shox TL Noir",
+      "marque": "Nike",
+      "couleur": "Noir",
+      "prix": 22000,
+      "description": "La Shox TL entièrement noire, avec ses colonnes Shox apparentes sur toute la longueur. Un look futuriste et imposant.",
+      "images": [
+        "/chaussures/nike-shox-tl-noir/01.webp",
+        "/chaussures/nike-shox-tl-noir/02.webp",
+        "/chaussures/nike-shox-tl-noir/03.webp",
+        "/chaussures/nike-shox-tl-noir/04.webp"
+      ]
+    },
+    {
+      "slug": "numeris-denim-rose",
+      "source": "14.jpg",
+      "nom": "Numeris Denim Rose",
+      "marque": "Numeris",
+      "couleur": "Denim noir / rose",
+      "prix": 35000,
+      "description": "Denim noir effet usé, gros lacets roses et semelle blanche crantée. Une paire originale, à la fois brute et douce.",
+      "images": [
+        "/chaussures/numeris-denim-rose/01.webp",
+        "/chaussures/numeris-denim-rose/02.webp",
+        "/chaussures/numeris-denim-rose/03.webp"
+      ]
+    },
+    {
+      "slug": "asics-gel-kayano-14-bleu",
+      "source": "15.jpg",
+      "nom": "Gel-Kayano 14 Bleu",
+      "marque": "ASICS",
+      "couleur": "Blanc / bleu",
+      "prix": 21000,
+      "description": "La Gel-Kayano 14 en blanc, avec des empiècements bleu roi brillants au talon et sur la semelle. Sportive et nette.",
+      "images": [
+        "/chaussures/asics-gel-kayano-14-bleu/01.webp",
+        "/chaussures/asics-gel-kayano-14-bleu/02.webp",
+        "/chaussures/asics-gel-kayano-14-bleu/03.webp",
+        "/chaussures/asics-gel-kayano-14-bleu/04.webp",
+        "/chaussures/asics-gel-kayano-14-bleu/05.webp",
+        "/chaussures/asics-gel-kayano-14-bleu/06.webp"
+      ]
+    },
+    {
+      "slug": "asics-gel-kayano-14-rose",
+      "source": "16.jpg",
+      "nom": "Gel-Kayano 14 Rose",
+      "marque": "ASICS",
+      "couleur": "Crème / argent / rose",
+      "prix": 22000,
+      "description": "Crème, argent et touches de rose sur la semelle : une Gel-Kayano 14 douce et lumineuse. Le look running rétro, version tendre.",
+      "images": [
+        "/chaussures/asics-gel-kayano-14-rose/01.webp",
+        "/chaussures/asics-gel-kayano-14-rose/02.webp",
+        "/chaussures/asics-gel-kayano-14-rose/03.webp"
+      ]
+    },
+    {
+      "slug": "dior-b30-noir",
+      "source": "17.jpg",
+      "nom": "B30 Noir",
+      "marque": "Dior",
+      "couleur": "Noir / gris",
+      "prix": 23000,
+      "description": "La B30 en noir avec le grand logo CD gris métallisé sur le côté. Sa semelle épaisse couleur crème signe une silhouette moderne.",
+      "images": [
+        "/chaussures/dior-b30-noir/01.webp"
+      ],
+      "exclureVues": [
+        2,
+        3
+      ]
+    },
+    {
+      "slug": "jordan-1-low-travis-scott-noir",
+      "source": "18.jpg",
+      "nom": "Air Jordan 1 Low x Travis Scott Noir",
+      "marque": "Jordan",
+      "couleur": "Noir",
+      "prix": 18000,
+      "description": "L'Air Jordan 1 Low Travis Scott en noir total, swoosh inversé et coutures blanches contrastées. Aspect daim mat pour un rendu chic.",
+      "images": [
+        "/chaussures/jordan-1-low-travis-scott-noir/01.webp",
+        "/chaussures/jordan-1-low-travis-scott-noir/02.webp",
+        "/chaussures/jordan-1-low-travis-scott-noir/03.webp"
+      ]
+    },
+    {
+      "slug": "asics-gel-nyc-rose",
+      "source": "19.jpg",
+      "nom": "Gel-NYC Rose",
+      "marque": "ASICS",
+      "couleur": "Rose / crème",
+      "prix": 22000,
+      "description": "Rose, crème et argent : la Gel-NYC dans un coloris doux et lumineux. Daim et mesh pour un look rétro très frais.",
+      "images": [
+        "/chaussures/asics-gel-nyc-rose/01.webp",
+        "/chaussures/asics-gel-nyc-rose/02.webp",
+        "/chaussures/asics-gel-nyc-rose/03.webp",
+        "/chaussures/asics-gel-nyc-rose/04.webp"
+      ]
+    },
+    {
+      "slug": "jordan-1-low-travis-scott-marron",
+      "source": "20.jpg",
+      "nom": "Air Jordan 1 Low x Travis Scott Marron",
+      "marque": "Jordan",
+      "couleur": "Marron",
+      "prix": 18000,
+      "description": "L'Air Jordan 1 Low Travis Scott en marron chocolat, swoosh inversé noir en cuir grainé. Une paire sobre et élégante.",
+      "images": [
+        "/chaussures/jordan-1-low-travis-scott-marron/01.webp",
+        "/chaussures/jordan-1-low-travis-scott-marron/02.webp",
+        "/chaussures/jordan-1-low-travis-scott-marron/03.webp",
+        "/chaussures/jordan-1-low-travis-scott-marron/04.webp",
+        "/chaussures/jordan-1-low-travis-scott-marron/05.webp"
+      ]
+    },
+    {
+      "slug": "nike-air-max-95-corteiz-kaki",
+      "source": "21.jpg",
+      "nom": "Air Max 95 x Corteiz Kaki",
+      "marque": "Nike",
+      "couleur": "Kaki / olive / jaune",
+      "prix": 22000,
+      "description": "La Air Max 95 signée Corteiz en kaki et olive, avec logos brodés jaunes. Bulles d'air visibles et lignes ondulées emblématiques.",
+      "images": [
+        "/chaussures/nike-air-max-95-corteiz-kaki/01.webp",
+        "/chaussures/nike-air-max-95-corteiz-kaki/02.webp",
+        "/chaussures/nike-air-max-95-corteiz-kaki/03.webp",
+        "/chaussures/nike-air-max-95-corteiz-kaki/04.webp"
+      ],
+      "exclureVues": [
+        3
+      ]
+    },
+    {
+      "slug": "nike-shox-tl-blanc",
+      "source": "22.jpg",
+      "nom": "Shox TL Blanc",
+      "marque": "Nike",
+      "couleur": "Blanc / argent",
+      "prix": 22000,
+      "description": "La Shox TL en blanc et argent, colonnes Shox apparentes et logo rouge au talon. Un look futuriste et très propre.",
+      "images": [
+        "/chaussures/nike-shox-tl-blanc/01.webp",
+        "/chaussures/nike-shox-tl-blanc/02.webp",
+        "/chaussures/nike-shox-tl-blanc/03.webp",
+        "/chaussures/nike-shox-tl-blanc/04.webp"
+      ]
+    },
+    {
+      "slug": "nike-p-6000-argent",
+      "source": "23.jpg",
+      "nom": "P-6000 Argent",
+      "marque": "Nike",
+      "couleur": "Argent métallisé",
+      "prix": 22000,
+      "description": "La P-6000 tout en argent métallisé, superpositions brillantes et semelle blanche et noire. Le style running des années 2000 qui brille.",
+      "images": [
+        "/chaussures/nike-p-6000-argent/01.webp",
+        "/chaussures/nike-p-6000-argent/02.webp",
+        "/chaussures/nike-p-6000-argent/03.webp",
+        "/chaussures/nike-p-6000-argent/04.webp"
+      ]
+    }
+  ]
+}

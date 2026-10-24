@@ -1,0 +1,17 @@
+{
+  "name": "Vertical Store — Admin",
+  "short_name": "VS Admin",
+  "description": "Gérer les chaussures, les commandes et les numéros WhatsApp de Vertical Store.",
+  "lang": "fr",
+  "start_url": "/admin/chaussures",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f5f0",
+  "theme_color": "#3e5a1f",
+  "icons": [
+    { "src": "/icones/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icones/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icones/icone-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
