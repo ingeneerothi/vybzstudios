@@ -222,9 +222,10 @@ Modèle plus rapide (moins précis sur les chaussures blanches) : `--modele isne
 Produit `apercu/sortie/vertical-store-apercu.html` : le site et l'admin en un seul fichier, pour une démonstration sans serveur.
 
 - `apercu/main.tsx` monte les **vrais composants** (`src/components/pages/*` pour le site, les pages client de `src/app/admin` pour l'admin) avec un petit routeur à base de `#` (`apercu/routeur.tsx`).
-- `apercu/next/*` remplace `next/link`, `next/image` et `next/navigation` ; `apercu/vite.config.ts` remplace aussi l'écran de validation (le message WhatsApp s'affiche au lieu d'ouvrir WhatsApp) et force le mode démo.
+- `apercu/next/*` remplace `next/link`, `next/image` et `next/navigation` ; `apercu/vite.config.mts` remplace aussi l'écran de validation (le message WhatsApp s'affiche au lieu d'ouvrir WhatsApp) et force le mode démo.
 - Les données vivent en mémoire (`apercu/stockage.ts`), avec deux commandes et une demande d'exemple (`apercu/exemples.ts`).
 - Les styles viennent du build Next (Tailwind compilé) : le script relance `next build`, réduit les photos (720 px) puis assemble le tout avec Vite. `--vite` saute le build Next.
+- Le script joue ensuite une visite guidée (`apercu/parcours.mjs`) dans Chromium en taille téléphone : il la filme (`apercu/sortie/vertical-store-visite.mp4`, H.264, environ 1 min, nécessite `ffmpeg`) et en tire 13 écrans. Ces écrans sont mis dans le fichier HTML, dans un bloc `<noscript>` : les lecteurs qui bloquent JavaScript (aperçu WhatsApp, fichiers de l'iPhone…) affichent ces écrans à la suite au lieu d'une page vide. `--sans-video` saute l'encodage de la vidéo.
 
 Les pages publiques de `src/app/(site)` ne font que charger le catalogue puis afficher le composant correspondant de `src/components/pages/` : l'aperçu et le site affichent donc exactement la même chose.
 
