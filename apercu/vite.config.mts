@@ -51,6 +51,8 @@ export default defineConfig({
     "process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY": vide,
     "process.env.NEXT_PUBLIC_SITE_URL": vide,
     "process.env.VERCEL_PROJECT_PRODUCTION_URL": vide,
+    // Stockage en mémoire (stockage.ts) : certains lecteurs de téléphone refusent le vrai.
+    localStorage: "globalThis.__stockageApercu",
   },
   oxc: { jsx: { runtime: "automatic" } },
   build: {

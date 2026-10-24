@@ -10,10 +10,27 @@
     <title>Vertical Store — Sneakers à Abidjan</title>
     <!--ICONE-->
     <!--STYLES-->
+    <style>
+      html.avec-js #ecrans-fixes {
+        display: none;
+      }
+    </style>
   </head>
   <body class="min-h-dvh">
+    <!-- Si le site ne démarre pas (JavaScript bloqué ou en panne sur ce téléphone), les écrans fixes restent visibles. -->
+    <script>
+      (function () {
+        var html = document.documentElement;
+        html.classList.add("avec-js");
+        function secours() {
+          if (!window.__apercuPret) html.classList.remove("avec-js");
+        }
+        window.addEventListener("error", secours);
+        setTimeout(secours, 6000);
+      })();
+    </script>
     <div id="racine"></div>
-    <!--SANS-JS-->
+    <!--ECRANS-->
     <script type="module" src="./main.tsx"></script>
   </body>
 </html>

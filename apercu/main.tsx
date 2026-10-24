@@ -124,10 +124,21 @@ function Ecran({ route }: { route: Route }) {
   );
 }
 
+/** Le site s'est affiché : on retire les écrans fixes prévus pour les lecteurs qui bloquent le JavaScript. */
+function Pret() {
+  useEffect(() => {
+    window.__apercuPret = true;
+    document.documentElement.classList.add("avec-js");
+    document.getElementById("ecrans-fixes")?.remove();
+  }, []);
+  return null;
+}
+
 createRoot(document.getElementById("racine")!).render(
   <StrictMode>
     <Mouvement>
       <Routeur>{(route) => <Ecran route={route} />}</Routeur>
     </Mouvement>
+    <Pret />
   </StrictMode>,
 );

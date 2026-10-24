@@ -2,7 +2,8 @@
 // Construit apercu/sortie/vertical-store-apercu.html : le site client et l'espace vendeur dans un seul
 // fichier, qui s'ouvre dans n'importe quel navigateur, sans internet (mode démo, rien n'est envoyé).
 //
-// Produit aussi vertical-store-visite.mp4 : la visite guidée filmée en taille téléphone.
+// Produit aussi vertical-store-visite.mp4 (la visite guidée filmée en taille téléphone) et
+// vertical-store-presentation.pdf (les écrans clés, un par page) : les deux s'ouvrent sur tous les téléphones.
 //
 // Utilisation : npm run apercu                  (relance aussi « next build » pour avoir les styles à jour)
 //               npm run apercu -- --vite        (garde le build Next existant : plus rapide)
@@ -14,12 +15,14 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { build } from "vite";
 import { filmer } from "./filmer.mjs";
+import { creerPresentation, lireLogo } from "./presentation.mjs";
 
 const ici = fileURLToPath(new URL(".", import.meta.url));
 const racine = fileURLToPath(new URL("..", import.meta.url));
 const cache = join(ici, "cache");
 const sortie = join(ici, "sortie", "vertical-store-apercu.html");
 const sortieVideo = join(ici, "sortie", "vertical-store-visite.mp4");
+const sortiePdf = join(ici, "sortie", "vertical-store-presentation.pdf");
 const TAILLE_VUE = 720; // px : net sur téléphone, léger pour le fichier
 
 const types = { ".webp": "image/webp", ".png": "image/png", ".woff2": "font/woff2", ".svg": "image/svg+xml" };
@@ -30,7 +33,7 @@ function dataUri(fichier) {
 
 // 1. Les styles du vrai site, compilés par Next (Tailwind, police, fonds).
 if (!process.argv.includes("--vite")) {
-  console.log("1/6 next build (styles du site)…");
+  console.log("1/7 next build (styles du site)…");
   execFileSync("npx", ["next", "build"], {
     cwd: racine,
     stdio: ["ignore", "ignore", "inherit"],
@@ -53,7 +56,7 @@ const css = feuilles
   .join("\n");
 
 // 2. Photos réduites, intégrées ensuite au fichier par Vite (voir images.ts).
-console.log("2/6 photos…");
+console.log("2/7 photos…");
 const dossierChaussures = join(racine, "public/chaussures");
 const aJour = (source, copie) => {
   try {
@@ -79,11 +82,11 @@ for (const f of readdirSync(join(racine, "public/marque")).filter((f) => f.endsW
 }
 
 // 3. Les composants du site, assemblés en un seul script.
-console.log("3/6 vite build…");
+console.log("3/7 vite build…");
 await build({ configFile: join(ici, "vite.config.mts") });
 
 // 4. Un seul fichier : styles, script et photos à l'intérieur.
-console.log("4/6 assemblage…");
+console.log("4/7 assemblage…");
 const dist = join(cache, "dist");
 let html = readFileSync(join(dist, "index.html"), "utf8");
 const script = html.match(/<script type="module" crossorigin src="\.\/(assets\/[^"]+\.js)"><\/script>/);
@@ -97,22 +100,24 @@ html = html
   .replace("<!--ICONE-->", () => `<link rel="icon" href="${dataUri(join(racine, "public/icones/icone-192.png"))}" />`);
 
 mkdirSync(join(ici, "sortie"), { recursive: true });
-const MESSAGE_SANS_JS =
-  "Pour voir l'aperçu de Vertical Store, ouvrez ce fichier avec un navigateur : Chrome, Safari ou Firefox.";
+const STYLE_ECRANS =
+  "max-width:440px;margin:0 auto;padding:32px 18px 48px;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#0d0e0b";
+// Version provisoire (le temps de filmer) : le site démarre, ce bloc reste caché.
 writeFileSync(
   sortie,
-  html.replace("<!--SANS-JS-->", () => `<noscript><p>${MESSAGE_SANS_JS}</p></noscript>`),
+  html.replace("<!--ECRANS-->", () => `<div id="ecrans-fixes" style="${STYLE_ECRANS}"><p>Vertical Store</p></div>`),
 );
 
-// 5. Visite guidée : vidéo, et écrans clés pour les lecteurs qui bloquent JavaScript.
-console.log(process.argv.includes("--sans-video") ? "5/6 écrans…" : "5/6 vidéo et écrans…");
+// 5. Visite guidée : vidéo, et écrans clés.
+console.log(process.argv.includes("--sans-video") ? "5/7 écrans…" : "5/7 vidéo et écrans…");
 const captures = await filmer(sortie, {
   video: process.argv.includes("--sans-video") ? null : sortieVideo,
   images: join(cache, "images-video"),
 });
 
-// 6. Sans JavaScript (aperçu de WhatsApp, fichiers de l'iPhone…), le fichier montre ces écrans à la suite.
-console.log("6/6 version sans JavaScript…");
+// 6. Écrans fixes dans le fichier : visibles tant que le site n'a pas démarré. Si un téléphone bloque
+//    le JavaScript (aperçu WhatsApp, fichiers de l'iPhone…), on voit au moins tous les écrans à la suite.
+console.log("6/7 écrans fixes…");
 const figures = [];
 for (const { legende, png } of captures) {
   const webp = await sharp(png).resize({ width: 720 }).webp({ quality: 72 }).toBuffer();
@@ -122,16 +127,24 @@ for (const { legende, png } of captures) {
       `<figcaption style="margin-top:12px;font-size:16px;line-height:1.45;color:#3a3b35">${legende}</figcaption></figure>`,
   );
 }
-const sansJs =
-  `<noscript><div style="max-width:440px;margin:0 auto;padding:32px 18px 48px;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#0d0e0b">` +
+const ecrans =
+  `<div id="ecrans-fixes" style="${STYLE_ECRANS}">` +
   `<p style="margin:0;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#3e5a1f">Aperçu</p>` +
   `<h1 style="margin:8px 0 10px;font-size:30px;line-height:1.1;letter-spacing:-.02em">Vertical Store</h1>` +
   `<p style="margin:0 0 28px;font-size:16px;line-height:1.5;color:#63635a">Voici les écrans du site et de l'espace vendeur. ` +
   `Pour l'essayer en vrai (glisser les photos, choisir sa pointure, commander…), ouvrez ce fichier sur un ordinateur ` +
-  `ou dans Chrome.</p>${figures.join("")}</div></noscript>`;
-const final = html.replace("<!--SANS-JS-->", () => sansJs);
+  `ou dans Chrome.</p>${figures.join("")}</div>`;
+const final = html.replace("<!--ECRANS-->", () => ecrans);
 writeFileSync(sortie, final);
-console.log(`✅ ${sortie} (${(Buffer.byteLength(final) / 1024 / 1024).toFixed(1)} Mo)`);
-if (!process.argv.includes("--sans-video")) {
-  console.log(`✅ ${sortieVideo} (${(statSync(sortieVideo).size / 1024 / 1024).toFixed(1)} Mo)`);
-}
+
+// 7. Présentation PDF : s'ouvre sur tous les téléphones et dans WhatsApp.
+console.log("7/7 présentation PDF…");
+await creerPresentation(captures, sortiePdf, {
+  police: dataUri(join(racine, "src/app/fonts/archivo-variable.woff2")),
+  logoSvg: lireLogo(join(racine, "public/marque/logo.svg")),
+});
+
+const taille = (f) => `${(statSync(f).size / 1024 / 1024).toFixed(1)} Mo`;
+console.log(`✅ ${sortie} (${taille(sortie)})`);
+console.log(`✅ ${sortiePdf} (${taille(sortiePdf)})`);
+if (!process.argv.includes("--sans-video")) console.log(`✅ ${sortieVideo} (${taille(sortieVideo)})`);

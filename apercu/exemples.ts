@@ -10,7 +10,7 @@ export function remplirExemples(): void {
   const chaussure = (slug: string) => etat.chaussures.find((c) => c.slug === slug) ?? etat.chaussures[0];
   const zone = (details: string) => etat.zones.find((z) => z.details === details) ?? etat.zones[0];
 
-  const am95 = chaussure("nike-air-max-95-corteiz-kaki");
+  const nyc = chaussure("asics-gel-nyc-marine");
   const kayano = chaussure("asics-gel-kayano-14-vert");
   const abidjan = zone("commune_quartier");
   const expedition = zone("ville");
@@ -19,14 +19,14 @@ export function remplirExemples(): void {
     {
       id: "exemple-commande-2",
       code: "CMD-0002",
-      chaussureNom: am95.nom,
-      chaussureImage: am95.images[0] ?? null,
-      pointure: 43,
+      chaussureNom: nyc.nom,
+      chaussureImage: nyc.images[0] ?? null,
+      pointure: 41,
       quantite: 1,
-      prixUnitaire: am95.prix,
+      prixUnitaire: nyc.prix,
       zone: abidjan.nom,
       fraisLivraison: abidjan.frais,
-      total: am95.prix + abidjan.frais,
+      total: nyc.prix + abidjan.frais,
       clientNom: "Awa Koné",
       clientTelephone: "0708091011",
       commune: "Cocody",
