@@ -43,11 +43,12 @@ public/admin.webmanifest       Manifeste PWA de l'admin
 scripts/
   images/decouper_chaussures.py  Découpe + détourage (rembg/BiRefNet) des montages
   images/preparer_marque.py      Logo vectorisé, icônes PWA, fonds
-  generer-seed.mjs               data/catalogue.json -> supabase/seed.sql
+  generer-seed.mjs               data/catalogue.json -> supabase/seed.sql + installation.sql
   captures.mjs                   Captures d'écran 375/390/412/768/1440 px
 supabase/
   schema.sql                   Tables, RLS, fonctions, buckets (à coller dans Supabase)
   seed.sql                     Données de départ (généré)
+  installation.sql             schema.sql + seed.sql, en un seul copier-coller (généré)
 src/
   proxy.ts                     Session admin + redirection vers /admin/connexion
   app/(site)/                  Site public : accueil, collection, chaussure/[slug], commander/[slug], demande
@@ -92,13 +93,13 @@ Admin en mode démo : `http://localhost:3000/admin`, n'importe quel email/mot de
 ### 4.2 Créer les tables, la sécurité et les buckets
 
 1. Menu de gauche → **SQL Editor** → **New query**.
-2. Ouvrez `supabase/schema.sql`, copiez **tout** le contenu, collez, puis **Run**. Résultat attendu : *Success. No rows returned*.
-   - Ce script crée les tables, active la Row Level Security partout, les fonctions (`creer_commande`, `creer_demande`, `activer_numero`…) et les buckets de stockage `produits` et `demandes`.
-   - Les emails admins sont déjà dedans (`angebattey.616@gmail.com`, `kodjojeanothniel24@icloud.com`).
-3. **New query** à nouveau → collez tout `supabase/seed.sql` → **Run**. Les 21 chaussures, les 4 zones, le numéro `+225 05 06 52 38 16` et les réglages sont importés.
+2. Ouvrez `supabase/installation.sql`, copiez **tout** le contenu, collez, puis **Run**. Résultat attendu : *Success. No rows returned* (si Supabase signale une « opération destructive », confirmez : ce sont des `drop policy if exists`, aucune donnée n'est supprimée).
+   - Ce fichier est `schema.sql` suivi de `seed.sql` (régénéré par `npm run seed`).
+   - `schema.sql` crée les tables, active la Row Level Security partout, donne explicitement les droits d'accès aux rôles `anon` et `authenticated`, crée les fonctions (`creer_commande`, `creer_demande`, `activer_numero`…) et les buckets de stockage `produits` et `demandes`. Les emails admins sont déjà dedans (`angebattey.616@gmail.com`, `kodjojeanothniel24@icloud.com`).
+   - `seed.sql` importe les 21 chaussures, les 4 zones, le numéro `+225 05 06 52 38 16` et les réglages.
    - Vérification : **Table Editor** → table `chaussures` → 21 lignes.
 
-Les deux scripts peuvent être relancés sans risque (rien n'est dupliqué ni effacé).
+Le script peut être relancé sans risque (rien n'est dupliqué ni effacé). On peut aussi lancer `schema.sql` puis `seed.sql` séparément.
 
 > Les photos des 21 chaussures de départ sont servies depuis le site (`public/chaussures/`). Les photos ajoutées ensuite depuis l'admin vont dans le bucket `produits`.
 
@@ -154,8 +155,8 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 ### 5.1 GitHub
 
-Le code est dans le dépôt `ingeneerothi/vybzstudios`. Vercel déploie la branche principale (`main`) :
-fusionnez la branche de travail dans `main` (Pull Request sur GitHub → **Merge**).
+Le code est dans le dépôt `ingeneerothi/vybzstudios`. Vercel met en production la branche principale (`main`) :
+chaque modification fusionnée dans `main` est mise en ligne automatiquement.
 
 ### 5.2 Vercel
 
@@ -168,7 +169,7 @@ fusionnez la branche de travail dans `main` (Pull Request sur GitHub → **Merge
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | URL du projet Supabase |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | clé *publishable* / *anon* |
-| `NEXT_PUBLIC_SITE_URL` | l'adresse finale du site (ex. `https://vertical-store.vercel.app`) |
+| `NEXT_PUBLIC_SITE_URL` | facultatif : l'adresse finale si vous avez un nom de domaine (sinon Vercel la fournit tout seul) |
 
 5. **Deploy**. Au bout de 1 à 3 minutes, Vercel affiche l'adresse du site.
 6. Retournez dans Supabase (étape 4.3) et mettez cette adresse dans *Site URL* et *Redirect URLs*.
@@ -224,7 +225,7 @@ npm run e2e            # Playwright : catalogue → produit → pointure → for
 npx next start -p 3200 & npm run captures   # captures d'écran dans captures/
 ```
 
-Les tests de la base exécutent `supabase/schema.sql` et `seed.sql` dans un vrai Postgres (PGlite) avec des rôles `anon`/`authenticated` : lecture publique, interdictions, calcul des prix et des promos, numéro actif unique, dépôts de photos.
+Les tests de la base exécutent `supabase/installation.sql` (deux fois) dans un vrai Postgres (PGlite) avec des rôles `anon`/`authenticated`, avec et sans les droits par défaut de Supabase : lecture publique, interdictions, calcul des prix et des promos, numéro actif unique, dépôts de photos.
 
 Lighthouse (mobile) : `npx lighthouse https://votre-site --form-factor=mobile --view`.
 

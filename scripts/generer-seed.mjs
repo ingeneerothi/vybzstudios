@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Génère supabase/seed.sql à partir de data/catalogue.json.
-// Utilisation : npm run seed   (puis coller supabase/seed.sql dans le SQL Editor de Supabase)
+// Génère supabase/seed.sql (et supabase/installation.sql = schema + seed) à partir de data/catalogue.json.
+// Utilisation : npm run seed   (puis coller supabase/installation.sql dans le SQL Editor de Supabase)
 import { readFileSync, writeFileSync } from "node:fs";
 
 const racine = new URL("../", import.meta.url);
@@ -70,6 +70,23 @@ lignes.push(
 
 writeFileSync(new URL("supabase/seed.sql", racine), lignes.join("\n"));
 console.log(`supabase/seed.sql : ${catalogue.chaussures.length} chaussures, ${catalogue.zones.length} zones`);
+
+// Les deux à la suite, pour une installation en un seul copier-coller.
+const installation = [
+  "-- =====================================================================",
+  "-- Vertical Store — INSTALLATION COMPLÈTE, en un seul copier-coller",
+  "-- Supabase > SQL Editor > New query : coller tout ce fichier, puis « Run ».",
+  "-- Contient schema.sql puis seed.sql (généré par scripts/generer-seed.mjs : ne pas modifier à la main).",
+  "-- Peut être relancé sans risque : rien n'est supprimé ni dupliqué.",
+  "-- =====================================================================",
+  "",
+  readFileSync(new URL("supabase/schema.sql", racine), "utf8").trimEnd(),
+  "",
+  "",
+  lignes.join("\n"),
+];
+writeFileSync(new URL("supabase/installation.sql", racine), installation.join("\n"));
+console.log("supabase/installation.sql : schema.sql + seed.sql");
 
 // Tableau récapitulatif lisible (CATALOGUE.md)
 const prix = (n) => (n == null ? "—" : `${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} FCFA`);

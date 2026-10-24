@@ -1,5 +1,6 @@
 -- Reproduit le strict nécessaire de Supabase pour tester schema.sql dans PGlite :
--- rôles anon/authenticated, auth.jwt(), schéma storage et droits par défaut.
+-- rôles anon/authenticated, auth.jwt() et schéma storage. Les droits par défaut du schéma public
+-- (donnés aujourd'hui par Supabase) sont ajoutés ou non par le test : le schéma doit marcher dans les deux cas.
 create role anon nologin;
 create role authenticated nologin;
 
@@ -10,10 +11,6 @@ $$;
 grant usage on schema auth to anon, authenticated;
 grant execute on all functions in schema auth to anon, authenticated;
 
-grant usage on schema public to anon, authenticated;
-alter default privileges in schema public grant all on tables to anon, authenticated;
-alter default privileges in schema public grant all on sequences to anon, authenticated;
-alter default privileges in schema public grant all on functions to anon, authenticated;
 
 create schema storage;
 grant usage on schema storage to anon, authenticated;

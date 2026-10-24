@@ -17,8 +17,7 @@ export const metadata: Metadata = {
     default: "Vertical Store — Sneakers à Abidjan",
     template: "%s · Vertical Store",
   },
-  description:
-    "Sneakers livrées à Abidjan et partout en Côte d'Ivoire. Commande en 1 minute sur WhatsApp.",
+  description: "Sneakers livrées à Abidjan et partout en Côte d'Ivoire. Commande en 1 minute sur WhatsApp.",
   applicationName: "Vertical Store",
   openGraph: {
     type: "website",

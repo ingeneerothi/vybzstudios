@@ -234,6 +234,16 @@ create policy "admins gerent" on public.demandes for all to authenticated
 drop policy if exists "admins lisent" on public.admins;
 create policy "admins lisent" on public.admins for select to authenticated using (public.est_admin());
 
+-- Droits d'accès aux tables, donnés explicitement : le script ne dépend pas des droits par défaut
+-- du projet. La sécurité ligne par ligne ci-dessus décide ensuite ce que chacun voit vraiment.
+grant usage on schema public to anon, authenticated;
+grant select on public.chaussures, public.chaussure_images, public.chaussure_pointures,
+  public.zones_livraison, public.reglages to anon, authenticated;
+grant insert, update, delete on public.chaussures, public.chaussure_images, public.chaussure_pointures,
+  public.zones_livraison, public.reglages to authenticated;
+grant select, insert, update, delete on public.numeros_whatsapp, public.commandes, public.demandes to authenticated;
+grant select on public.admins to authenticated;
+
 
 -- ---------------------------------------------------------------------
 -- Fonctions appelées par le site

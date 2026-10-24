@@ -10,6 +10,7 @@ Boutique de sneakers en ligne (Côte d'Ivoire) : catalogue animé, commande en u
 
 | Pour qui | Fichier |
 | --- | --- |
+| Mise en ligne, case par case (Supabase + Vercel, environ 20 min) | [MISE-EN-LIGNE.md](MISE-EN-LIGNE.md) |
 | Le vendeur (utilisation de l'admin) | [GUIDE-VENDEUR.md](GUIDE-VENDEUR.md) |
 | Le développeur (installation, Supabase, Vercel, organisation du code) | [NOTES-TECHNIQUES.md](NOTES-TECHNIQUES.md) |
 

@@ -38,7 +38,12 @@ export async function chargerCatalogueSupabase(): Promise<Catalogue> {
   ]);
 
   const erreur = chaussures.error ?? zones.error ?? reglages.error ?? numero.error;
-  if (erreur) throw new Error(`Lecture Supabase impossible : ${erreur.message}`);
+  if (erreur) {
+    throw new Error(
+      `Lecture Supabase impossible : ${erreur.message}. Vérifiez que supabase/installation.sql a été lancé ` +
+        "et que l'URL et la clé sont les bonnes (voir MISE-EN-LIGNE.md).",
+    );
+  }
 
   return {
     chaussures: (chaussures.data ?? []).map((c) => ({

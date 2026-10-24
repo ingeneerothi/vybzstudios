@@ -69,14 +69,49 @@ async function commander(c: Partial<SaisieTest> & { zoneId: string }) {
   return rows[0].r;
 }
 
-describe("schéma Supabase", () => {
+// Supabase donne aujourd'hui tous les droits par défaut sur les nouvelles tables (la sécurité ligne par ligne
+// filtre ensuite). Le schéma doit aussi marcher sans ces droits par défaut, au cas où ils changent.
+const DROITS_PAR_DEFAUT = `
+  grant usage on schema public to anon, authenticated;
+  alter default privileges in schema public grant all on tables to anon, authenticated;
+  alter default privileges in schema public grant all on sequences to anon, authenticated;
+  alter default privileges in schema public grant all on functions to anon, authenticated;
+`;
+
+/** Lignes visibles d'une table ; un refus d'accès compte comme « rien de visible ». */
+async function lignesVisibles(table: string): Promise<number> {
+  try {
+    return await valeur<number>(`select count(*)::int from ${table}`);
+  } catch (e) {
+    expect(String(e)).toMatch(/permission denied/);
+    return 0;
+  }
+}
+
+/** Une écriture interdite échoue, ou ne touche aucune ligne : les deux sont acceptables. */
+async function ecritureSansEffet(sql: string): Promise<void> {
+  await db.query(sql).catch((e) => expect(String(e)).toMatch(/row-level security|permission denied/));
+}
+
+const REFUS = /row-level security|permission denied/;
+
+it("installation.sql reprend schema.sql et seed.sql à jour (sinon : npm run seed)", () => {
+  const installation = lire("supabase/installation.sql");
+  expect(installation).toContain(lire("supabase/schema.sql").trimEnd());
+  expect(installation).toContain(lire("supabase/seed.sql"));
+});
+
+describe.each([
+  ["droits par défaut de Supabase", true],
+  ["sans droits par défaut", false],
+])("schéma Supabase (%s)", (_nom, droitsParDefaut) => {
   beforeAll(async () => {
     db = new PGlite();
     await db.exec(lire("tests/sql/supabase-stubs.sql"));
-    await db.exec(lire("supabase/schema.sql"));
-    await db.exec(lire("supabase/schema.sql"));
-    await db.exec(lire("supabase/seed.sql"));
-    await db.exec(lire("supabase/seed.sql"));
+    if (droitsParDefaut) await db.exec(DROITS_PAR_DEFAUT);
+    // Le fichier unique collé dans Supabase, lancé deux fois : rien ne doit casser ni se dupliquer.
+    await db.exec(lire("supabase/installation.sql"));
+    await db.exec(lire("supabase/installation.sql"));
   });
 
   it("importe le catalogue une seule fois, même relancé", async () => {
@@ -95,23 +130,23 @@ describe("schéma Supabase", () => {
     await en("anon", async () => {
       expect(await valeur("select count(*)::int from public.chaussures")).toBe(catalogue.chaussures.length);
       expect(await valeur("select count(*)::int from public.zones_livraison")).toBe(4);
-      expect(await valeur("select count(*)::int from public.commandes")).toBe(0);
-      expect(await valeur("select count(*)::int from public.numeros_whatsapp")).toBe(0);
+      expect(await lignesVisibles("public.commandes")).toBe(0);
+      expect(await lignesVisibles("public.numeros_whatsapp")).toBe(0);
       expect(await valeur("select public.numero_actif()")).toBe("2250506523816");
     });
   });
 
   it("le public ne peut rien modifier directement", async () => {
     await en("anon", async () => {
-      await db.query("update public.chaussures set prix = 1");
+      await ecritureSansEffet("update public.chaussures set prix = 1");
       await expect(
         db.query("insert into public.chaussures (slug, nom, prix) values ('pirate', 'Pirate', 1)"),
-      ).rejects.toThrow(/row-level security/);
+      ).rejects.toThrow(REFUS);
       await expect(
         db.query(
           "insert into public.commandes (code, chaussure_nom, pointure, quantite, prix_unitaire, zone, frais_livraison, total, client_nom, client_telephone, adresse, mode_paiement, numero_whatsapp) values ('X', 'x', 42, 1, 1, 'x', 0, 1, 'x', 'x', 'x', 'x', 'x')",
         ),
-      ).rejects.toThrow(/row-level security/);
+      ).rejects.toThrow(REFUS);
       await expect(db.query("select public.activer_numero(gen_random_uuid())")).rejects.toThrow();
     });
     expect(await valeur("select min(prix)::int from public.chaussures")).toBeGreaterThan(1);
