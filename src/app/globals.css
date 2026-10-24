@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Vertical Store — jetons de design
+   Couleurs : vert pelouse (photo de marque) + rouge promo, sur noir/blanc.
+   ------------------------------------------------------------------ */
+@theme {
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --color-encre: #0d0e0b;
+  --color-encre-doux: #3a3b35;
+  --color-papier: #f6f5f0;
+  --color-carte: #eceae3;
+  --color-trait: #dcdbd2;
+  --color-gris: #63635a;
+  --color-vert: #3e5a1f;
+  --color-vert-fonce: #2b3f14;
+  --color-vert-clair: #c8dd92;
+  --color-promo: #c13a26;
+
+  --ease-sortie: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-transition: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --animate-flotter: flotter 4.8s var(--ease-transition) infinite;
+}
+
+:root {
+  --d-micro: 200ms;
+  --d-base: 400ms;
+  --d-entree: 600ms;
+  --d-hero: 800ms;
+  color-scheme: light;
+}
+
+@keyframes flotter {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes entree-douce {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+}
+
+@keyframes monter-doux {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+}
+
+@keyframes poser {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -56px, 0) rotate(-5deg);
+  }
+}
+
+@keyframes ombre-poser {
+  from {
+    opacity: 0;
+    transform: scaleX(0.5);
+  }
+  to {
+    opacity: 0.7;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes ombre-flotter {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scaleX(0.86);
+    opacity: 0.35;
+  }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--color-papier);
+  color: var(--color-encre);
+  font-family: var(--font-sans);
+  overflow-x: clip;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-vert-clair);
+  color: var(--color-encre);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-vert);
+  outline-offset: 3px;
+}
+
+/* Champs : pas de zoom auto sur iPhone (taille ≥ 16 px) et le champ actif reste visible au-dessus du clavier. */
+input,
+select,
+textarea {
+  font-size: 16px;
+  scroll-margin-block: 96px 160px;
+}
+
+@utility etiquette {
+  @apply text-[11px] font-semibold tracking-[0.18em] uppercase;
+}
+
+@utility titre-section {
+  @apply text-[clamp(1.75rem,6vw,3rem)] leading-[1.05] font-bold tracking-[-0.03em];
+}
+
+@utility bouton {
+  @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-7 text-[15px] font-semibold
+    transition-[transform,background-color,color,opacity,border-color] duration-200 ease-sortie
+    active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40;
+}
+
+@utility bouton-plein {
+  @apply bouton bg-encre text-white hover:bg-vert-fonce;
+}
+
+@utility bouton-clair {
+  @apply bouton bg-white text-encre hover:bg-vert-clair;
+}
+
+@utility bouton-contour {
+  @apply bouton border border-encre/15 bg-transparent text-encre hover:border-encre/40;
+}
+
+@utility champ {
+  @apply block min-h-13 w-full rounded-2xl border border-trait bg-white px-4 text-[16px] text-encre
+    transition-colors duration-200 placeholder:text-gris/70
+    focus:border-vert focus:ring-4 focus:ring-vert/15 focus:outline-none;
+}
+
+/* Listes déroulantes : même look que les champs, avec une flèche discrète. */
+select.champ {
+  appearance: none;
+  padding-right: 2.75rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2363635a' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.25rem;
+}
+
+@utility champ-erreur {
+  @apply border-promo focus:border-promo focus:ring-promo/15;
+}
+
+/* Ombre au sol sous une chaussure flottante */
+@utility ombre-sol {
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.18) 55%, transparent);
+  filter: blur(6px);
+}
+
+/* Fond de marque (photo floutée) avec un halo de lumière derrière la chaussure */
+@utility fond-marque {
+  background-color: #1b2410;
+  background-image:
+    radial-gradient(60% 55% at 50% 55%, rgb(255 255 255 / 0.22), transparent 70%),
+    linear-gradient(180deg, rgb(10 12 8 / 0.2), rgb(10 12 8 / 0.5)), url("/marque/fond-flou.webp");
+  background-size: cover;
+  background-position: center;
+}
+
+/* Apparitions au défilement : liées au scroll, sur le compositeur (transform + opacity). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .apparition {
+      animation: monter-doux var(--ease-sortie) both;
+      animation-timeline: view();
+      animation-range: entry calc(5% + var(--decalage, 0%)) entry calc(55% + var(--decalage, 0%));
+    }
+  }
+}
+
+/* La barre « Commander » collée en bas (fiche produit, mobile) ne doit rien cacher du pied de page. */
+@media (max-width: 1023px) {
+  body[data-barre-commande] footer {
+    padding-bottom: 5.5rem;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Transitions entre pages (View Transitions API)
+   ------------------------------------------------------------------ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--d-base);
+  animation-timing-function: var(--ease-transition);
+}
+
+::view-transition-group(.morph) {
+  animation-duration: var(--d-entree);
+  animation-timing-function: var(--ease-sortie);
+}
+
+::view-transition-image-pair(.morph) {
+  isolation: auto;
+}
+
+::view-transition-old(.morph),
+::view-transition-new(.morph) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(.morph) {
+  animation: var(--d-base) var(--ease-sortie) both apparaitre;
+}
+
+::view-transition-old(.morph) {
+  animation: var(--d-micro) var(--ease-transition) both disparaitre;
+}
+
+::view-transition-old(.page) {
+  animation: var(--d-micro) var(--ease-transition) both disparaitre;
+}
+
+::view-transition-new(.page) {
+  animation: var(--d-base) var(--ease-sortie) var(--d-micro) both monter;
+}
+
+@keyframes monter {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+}
+
+::view-transition-group(entete) {
+  animation: none;
+  z-index: 50;
+}
+
+@keyframes apparaitre {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes disparaitre {
+  to {
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Réglage « réduire les animations » : on garde les fondus, on coupe les mouvements.
+   ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
