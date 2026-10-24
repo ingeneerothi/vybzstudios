@@ -45,6 +45,7 @@ scripts/
   images/preparer_marque.py      Logo vectorisé, icônes PWA, fonds
   generer-seed.mjs               data/catalogue.json -> supabase/seed.sql + installation.sql
   captures.mjs                   Captures d'écran 375/390/412/768/1440 px
+apercu/                        Aperçu hors ligne en un fichier HTML (npm run apercu)
 supabase/
   schema.sql                   Tables, RLS, fonctions, buckets (à coller dans Supabase)
   seed.sql                     Données de départ (généré)
@@ -54,7 +55,7 @@ src/
   app/(site)/                  Site public : accueil, collection, chaussure/[slug], commander/[slug], demande
   app/admin/                   Admin : connexion, mot de passe, (app)/chaussures|commandes|numeros|reglages
   app/auth/confirmer/route.ts  Lien « mot de passe oublié » reçu par email
-  components/site|chaussure|commande|admin|marque
+  components/site|chaussure|commande|admin|marque|pages
   lib/
     donnees/                   Lecture du catalogue (Supabase ou démo) + cache
     admin/                     API admin (Supabase / démo), détourage navigateur, descriptions
@@ -215,6 +216,17 @@ pip install -r scripts/images/requirements.txt
 5. `git add` + `git commit` + `git push` pour publier les images.
 
 Modèle plus rapide (moins précis sur les chaussures blanches) : `--modele isnet-general-use`.
+
+## 8 bis. Aperçu hors ligne (`npm run apercu`)
+
+Produit `apercu/sortie/vertical-store-apercu.html` : le site et l'admin en un seul fichier, pour une démonstration sans serveur.
+
+- `apercu/main.tsx` monte les **vrais composants** (`src/components/pages/*` pour le site, les pages client de `src/app/admin` pour l'admin) avec un petit routeur à base de `#` (`apercu/routeur.tsx`).
+- `apercu/next/*` remplace `next/link`, `next/image` et `next/navigation` ; `apercu/vite.config.ts` remplace aussi l'écran de validation (le message WhatsApp s'affiche au lieu d'ouvrir WhatsApp) et force le mode démo.
+- Les données vivent en mémoire (`apercu/stockage.ts`), avec deux commandes et une demande d'exemple (`apercu/exemples.ts`).
+- Les styles viennent du build Next (Tailwind compilé) : le script relance `next build`, réduit les photos (720 px) puis assemble le tout avec Vite. `--vite` saute le build Next.
+
+Les pages publiques de `src/app/(site)` ne font que charger le catalogue puis afficher le composant correspondant de `src/components/pages/` : l'aperçu et le site affichent donc exactement la même chose.
 
 ## 9. Tests
 

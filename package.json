@@ -11,7 +11,8 @@
     "test": "vitest run",
     "seed": "node scripts/generer-seed.mjs",
     "e2e": "playwright test",
-    "captures": "node scripts/captures.mjs"
+    "captures": "node scripts/captures.mjs",
+    "apercu": "node apercu/assembler.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

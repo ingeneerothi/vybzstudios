@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Fichiers générés par npm run apercu :
+    "apercu/cache/**",
+    "apercu/sortie/**",
   ]),
 ]);
 

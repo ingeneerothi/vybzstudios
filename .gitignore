@@ -49,3 +49,7 @@ next-env.d.ts
 # python
 __pycache__/
 .venv/
+
+# aperçu hors ligne (généré par npm run apercu)
+/apercu/cache
+/apercu/sortie

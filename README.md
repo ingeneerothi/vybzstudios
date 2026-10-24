@@ -21,4 +21,12 @@ npm install
 npm run dev          # http://localhost:3000 — mode démo tant que Supabase n'est pas configuré
 npm test             # tests unitaires + tests de la base (PGlite)
 npm run build && npm run e2e   # parcours complet dans Chromium (mobile + PC)
+npm run apercu       # aperçu hors ligne : apercu/sortie/vertical-store-apercu.html
 ```
+
+## Aperçu hors ligne
+
+`npm run apercu` construit **un seul fichier HTML** (≈ 3 Mo) avec le vrai site et le vrai espace vendeur,
+en mode démo : il s'ouvre dans n'importe quel navigateur, sans internet, et ne publie rien.
+Idéal pour montrer la boutique au vendeur avant la mise en ligne. Les commandes passées dans l'aperçu
+s'affichent dans l'espace vendeur (lien en bas des pages), et tout repart à zéro à chaque ouverture.
