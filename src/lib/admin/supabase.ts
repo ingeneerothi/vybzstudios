@@ -329,14 +329,12 @@ export function apiSupabase(): AdminApi {
       if (!normalise) throw new ErreurAdmin("Numéro invalide. Exemple : 05 06 52 38 16 (ou +33... pour l'étranger).");
       const existants = await api.numeros();
       verifier(
-        await sb
-          .from("numeros_whatsapp")
-          .insert({
-            libelle: libelle.trim(),
-            numero: normalise,
-            actif: existants.length === 0,
-            intro: intro.trim() || null,
-          }),
+        await sb.from("numeros_whatsapp").insert({
+          libelle: libelle.trim(),
+          numero: normalise,
+          actif: existants.length === 0,
+          intro: intro.trim() || null,
+        }),
       );
       await rafraichir();
     },

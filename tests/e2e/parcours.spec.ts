@@ -62,7 +62,6 @@ test("catalogue → produit → pointure → commande → message WhatsApp", asy
   expect(message.split("\n")).toEqual([
     "🛒 NOUVELLE COMMANDE VERTICAL STORE — CMD-0001",
     "👟 Chaussure : Air Force 1 Triple Noir",
-    `🖼️ Photo : ${new URL(page.url()).origin}/chaussure/nike-air-force-1-noir`,
     "📏 Pointure : 42",
     "🔢 Quantité : 1",
     "💰 Prix : 13 000 FCFA",
@@ -181,4 +180,70 @@ test("admin (démo) : connexion, rupture, numéro actif utilisé par la commande
   await expect(page.getByText("CMD-0001")).toBeVisible();
   await page.getByRole("radio", { name: "Envoyée au livreur" }).click();
   await expect(page.getByText("CMD-0001 : Envoyée au livreur ✅")).toBeVisible();
+});
+
+test("téléphone qui sait partager : la photo part comme une vraie photo", async ({ page }) => {
+  // Simule le menu « Partager » d'un téléphone (absent du navigateur de test).
+  await page.addInitScript(() => {
+    const partages: { texte: string; fichiers: { nom: string; type: string; taille: number }[] }[] = [];
+    Object.assign(window, { __partages: partages });
+    // Écran tactile, comme un téléphone.
+    const matchMediaReel = window.matchMedia.bind(window);
+    window.matchMedia = (requete: string) => {
+      const resultat = matchMediaReel(requete);
+      if (requete.includes("pointer: coarse")) Object.defineProperty(resultat, "matches", { value: true });
+      return resultat;
+    };
+    Object.assign(navigator, {
+      canShare: () => true,
+      share: async (d: { text: string; files: File[] }) => {
+        partages.push({ texte: d.text, fichiers: d.files.map((f) => ({ nom: f.name, type: f.type, taille: f.size })) });
+      },
+    });
+  });
+  const lirePartages = () =>
+    page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            __partages: { texte: string; fichiers: { nom: string; type: string; taille: number }[] }[];
+          }
+        ).__partages,
+    );
+
+  // Client : le message d'abord, puis la photo dans la même discussion.
+  await page.goto("/commander/nike-air-force-1-noir?pointure=42");
+  await page.getByRole("textbox", { name: "Nom complet" }).fill("Awa Koné");
+  await page.getByRole("textbox", { name: "Numéro de téléphone" }).fill("0708091011");
+  await page.getByRole("combobox", { name: "Commune" }).selectOption("Cocody");
+  await page.getByRole("textbox", { name: "Quartier" }).fill("Riviera 2");
+  await page.getByRole("textbox", { name: "Adresse précise" }).fill("Rue des jardins, villa 12");
+  await page.getByRole("button", { name: /^Commander ·/ }).click();
+  await expect(page.getByRole("heading", { name: "Commande enregistrée" })).toBeVisible();
+  await expect(page.getByText("1. Envoyez votre commande sur WhatsApp.")).toBeVisible();
+  await page.getByRole("button", { name: "Envoyer la photo" }).click();
+  await expect(page.getByRole("button", { name: "Photo envoyée" })).toBeVisible();
+  let partages = await lirePartages();
+  expect(partages).toHaveLength(1);
+  expect(partages[0].texte).toBe("📸 Air Force 1 Triple Noir — pointure 42 · CMD-0001");
+  expect(partages[0].fichiers).toEqual([
+    { nom: "nike-air-force-1-noir.jpg", type: "image/jpeg", taille: expect.any(Number) },
+  ]);
+  expect(partages[0].fichiers[0].taille).toBeGreaterThan(10_000);
+  await expect(page.getByRole("link", { name: "Ouvrir WhatsApp" })).toHaveAttribute(
+    "href",
+    /^https:\/\/wa\.me\/2250506523816\?text=/,
+  );
+
+  // Vendeur : « Envoyer au livreur » partage la photo avec toute la commande en légende.
+  await page.goto("/admin/connexion");
+  await page.getByRole("textbox", { name: "Email" }).fill("angebattey.616@gmail.com");
+  await page.getByLabel("Mot de passe", { exact: true }).fill("demo");
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  await page.getByRole("link", { name: "Commandes" }).click();
+  await page.getByRole("button", { name: "Envoyer au livreur, avec la photo" }).click();
+  partages = await lirePartages();
+  expect(partages.at(-1)?.fichiers[0]).toMatchObject({ nom: "CMD-0001.jpg", type: "image/jpeg" });
+  expect(partages.at(-1)?.texte.split("\n")[0]).toBe("🛒 NOUVELLE COMMANDE VERTICAL STORE — CMD-0001");
+  expect(partages.at(-1)?.texte).not.toMatch(/https?:/);
 });

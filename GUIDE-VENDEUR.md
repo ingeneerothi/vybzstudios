@@ -129,21 +129,22 @@ Quand un client commande :
 ```
 🛒 NOUVELLE COMMANDE VERTICAL STORE — CMD-0042
 👟 Chaussure : Air Max 95 x Corteiz Kaki
-🖼️ Photo : https://…/chaussure/nike-air-max-95-corteiz-kaki
 📏 Pointure : 42
 ...
 ✅ TOTAL : 24 000 FCFA
 ```
 
-La **photo de la chaussure** s'affiche en haut du message (WhatsApp la montre grâce au lien « Photo »). Si un autre numéro
-que le vôtre est actif, le message commence par sa phrase (ex. « Bonjour c'est Ange »).
+Juste après, le client peut vous envoyer la **photo de la chaussure** : une vraie photo, avec en légende le modèle,
+la pointure et le numéro de commande (bouton « Envoyer la photo » sur son téléphone, dans la même discussion).
+Si un autre numéro que le vôtre est actif, le message commence par sa phrase (ex. « Bonjour c'est Ange »).
 
 Ce message peut être **transféré tel quel au livreur**.
 
 Dans l'onglet **Commandes** :
 - Les plus récentes sont en haut. Le chiffre rouge = nouvelles commandes.
 - **Appeler** / **WhatsApp** : contacter le client.
-- **Envoyer au livreur** : ouvre WhatsApp avec la commande et le lien de la photo ; choisissez le livreur.
+- **Envoyer au livreur, avec la photo** : sur votre téléphone, la photo de la chaussure part comme une vraie photo,
+  avec toute la commande écrite dessous. Choisissez le livreur dans WhatsApp, puis envoyez. (Sur ordinateur : la commande seule.)
 - Touchez le statut : **Nouvelle**, **Envoyée au livreur**, **Livrée** ou **Annulée**.
 - **Actualiser** (en haut) pour voir les dernières commandes.
 

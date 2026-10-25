@@ -10,8 +10,6 @@ import { IconeFleche, IconeMoins, IconePlus, IconeRetour } from "@/components/si
 import { cn } from "@/lib/cn";
 import { ErreurEnvoi, creerCommande } from "@/lib/commande";
 import { formatPrix, libellePaiement } from "@/lib/format";
-import { adresseSite } from "@/lib/partage";
-import { URL_SITE } from "@/lib/site";
 import { DUREE, EASE_SORTIE } from "@/lib/motion";
 import { pointuresDisponibles } from "@/lib/prix";
 import { formaterSaisieTelephone, normaliserTelephone } from "@/lib/telephone";
@@ -116,7 +114,6 @@ export function FormulaireCommande({ chaussure: c, zones, modePaiement, whatsapp
       const r = await creerCommande(saisie, { chaussure: c, zone, modePaiement, whatsapp });
       const message = messageCommande({
         ...r,
-        lienPhoto: adresseSite(`/chaussure/${c.slug}`, origineSite()),
         nom: saisie.nom,
         telephone: normaliserTelephone(telephone) ?? telephone,
         lieu: decrireLieu(zone.nom, { details: zone.details, ...saisie }),
@@ -412,6 +409,15 @@ export function FormulaireCommande({ chaussure: c, zones, modePaiement, whatsapp
           titre="Commande enregistrée"
           code={resultat.r.code}
           lienWhatsapp={resultat.lien}
+          photo={
+            c.images[0]
+              ? {
+                  source: c.images[0],
+                  nomFichier: `${c.slug}.jpg`,
+                  legende: `📸 ${c.nom} — pointure ${resultat.r.pointure} · ${resultat.r.code}`,
+                }
+              : undefined
+          }
           onFermer={() => {
             setResultat(null);
             setQuantite(1);
@@ -435,9 +441,4 @@ function PointureDepuisLien({ dispo, onTrouvee }: { dispo: number[]; onTrouvee: 
     if (valide != null) onTrouvee(valide);
   }, [valide, onTrouvee]);
   return null;
-}
-
-/** Adresse du site vue du client ; celle de la configuration si la page n'est pas servie en http (aperçu hors ligne). */
-function origineSite(): string {
-  return /^https?:$/.test(window.location.protocol) ? window.location.origin : URL_SITE;
 }

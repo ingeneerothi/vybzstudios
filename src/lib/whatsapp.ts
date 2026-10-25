@@ -32,8 +32,6 @@ export interface DonneesMessageCommande extends ResultatCommande {
   lieu: string;
   adresse: string;
   repere: string;
-  /** Lien vers la chaussure : WhatsApp en affiche la photo en haut du message. */
-  lienPhoto?: string | null;
 }
 
 export function messageCommande(c: DonneesMessageCommande): string {
@@ -45,7 +43,6 @@ export function messageCommande(c: DonneesMessageCommande): string {
     ...(c.intro ? [c.intro, ""] : []),
     `🛒 NOUVELLE COMMANDE VERTICAL STORE — ${c.code}`,
     `👟 Chaussure : ${c.chaussure}`,
-    ...(c.lienPhoto ? [`🖼️ Photo : ${c.lienPhoto}`] : []),
     `📏 Pointure : ${c.pointure}`,
     `🔢 Quantité : ${c.quantite}`,
     `💰 Prix : ${prix}`,

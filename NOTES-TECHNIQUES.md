@@ -220,17 +220,22 @@ Modèle plus rapide (moins précis sur les chaussures blanches) : `--modele isne
 
 ## 8 ter. Photo de la chaussure dans la commande WhatsApp
 
-Un lien `wa.me` ne transporte que du texte : la commande contient donc le lien de la fiche (`🖼️ Photo : https://…/chaussure/<slug>`),
-et WhatsApp affiche en haut du message l'image `og:image` de cette fiche. Cette image est un JPEG 1200×630 nommé `partage.jpg`,
-rangé à côté de la photo principale (`src/lib/partage.ts`) :
+Un lien `wa.me` ne transporte que du texte. Pour que la photo arrive comme une **vraie photo** (et pas comme un lien),
+le site passe par le menu « Partager » du téléphone (Web Share API, `src/lib/partager.ts`) : la photo part dans
+WhatsApp, le texte en légende. La photo est un JPEG 1200×900 fabriqué dans le navigateur à partir de la photo
+principale (chaussure sur le fond du site, `src/lib/images/vitrine.ts`), préparé dès l'affichage de l'écran.
 
-- catalogue de départ : `npm run partage` (script `scripts/generer-partage.mjs`) crée `public/chaussures/<slug>/partage.jpg` ;
-  à relancer après avoir ajouté ou changé des photos dans `public/chaussures/` ;
-- chaussures ajoutées depuis l'admin : le navigateur fabrique l'image (`src/lib/images/partage.ts`) et l'envoie dans
-  `produits/<id>/partage.jpg` à chaque enregistrement.
+- **Client** (`Validation.tsx`) : sur un téléphone qui sait partager une photo, l'écran de validation propose deux
+  étapes au lieu d'ouvrir WhatsApp tout seul : « 1. Ouvrir WhatsApp » (le message), puis « 2. Envoyer la photo »
+  (même discussion, en haut de la liste). Ailleurs (ordinateur), comportement d'avant : WhatsApp s'ouvre seul.
+- **Vendeur** (onglet Commandes) : « Envoyer au livreur, avec la photo » partage la photo avec toute la commande en
+  légende ; on choisit le livreur dans WhatsApp. Sur ordinateur : la commande en texte (`wa.me/?text=`).
 
-L'aperçu n'apparaît qu'une fois le site en ligne (WhatsApp va chercher la fiche sur internet).
-Le bouton « Envoyer au livreur » de l'admin ajoute le lien direct vers `partage.jpg`.
+Envoyer la photo **sans aucune action** de personne (directement au livreur) demanderait l'API WhatsApp Business de
+Meta (compte Meta Business, numéro dédié, modèles de messages validés, coût par conversation).
+
+Les fiches gardent une image d'aperçu `partage.jpg` (JPEG 1200×630, `og:image`) pour les liens partagés :
+`npm run partage` pour le catalogue de départ, fabriquée par l'admin pour les chaussures ajoutées.
 
 **Phrase au début des commandes** : colonne `numeros_whatsapp.intro` (vide pour le numéro principal), réglée dans
 l'onglet Numéros et proposée d'office (« Bonjour c'est Ange ») pour tout numéro ajouté après le premier.

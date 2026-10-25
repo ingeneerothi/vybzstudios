@@ -1,20 +1,23 @@
 "use client";
 
-// Version aperçu de l'écran de validation : la même coche, puis le message que le vendeur
-// reçoit sur WhatsApp s'affiche ici, au lieu d'ouvrir WhatsApp automatiquement.
+// Version aperçu de l'écran de validation : la même coche, puis ce que le vendeur reçoit sur WhatsApp
+// (la photo de la chaussure, puis la commande), au lieu d'ouvrir WhatsApp automatiquement.
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { Fragment } from "react";
-import { IconeWhatsapp } from "@/components/site/Icones";
-import { lireDemo } from "@/lib/demo/magasin";
+import { useMemo } from "react";
+import { usePhotoWhatsapp } from "@/components/commande/usePhotoWhatsapp";
+import { IconeAppareilPhoto, IconeWhatsapp } from "@/components/site/Icones";
 import { DUREE, EASE_SORTIE } from "@/lib/motion";
+import { partagerPhoto, peutPartager } from "@/lib/partager";
+import { image } from "./images";
 
 type Props = {
   titre: string;
   code: string;
   lienWhatsapp: string;
   ouvrirAuto?: boolean;
+  photo?: { source: string; nomFichier: string; legende: string };
   onFermer?: () => void;
 };
 
@@ -26,23 +29,20 @@ function messageDuLien(lien: string): string {
   }
 }
 
-const PHOTO = "🖼️ Photo : ";
-
-/** « https://…/chaussure/x » -> « /chaussure/x » (pas encore d'adresse en ligne dans l'aperçu). */
-function chemin(lien: string): string {
-  try {
-    return new URL(lien).pathname;
-  } catch {
-    return lien;
-  }
+function Bulle({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="w-full rounded-[18px] rounded-tr-md bg-[#e4f2d5] p-1.5 text-left shadow-sm ring-1 ring-vert/15">
+      {children}
+    </div>
+  );
 }
 
-export function Validation({ titre, code, lienWhatsapp, onFermer }: Props) {
+export function Validation({ titre, code, lienWhatsapp, photo, onFermer }: Props) {
   const message = messageDuLien(lienWhatsapp);
-  const lignes = message.split("\n");
-  const lienPhoto = lignes.find((l) => l.startsWith(PHOTO))?.slice(PHOTO.length);
-  const slug = lienPhoto ? chemin(lienPhoto).split("/").pop() : undefined;
-  const chaussure = slug ? lireDemo().chaussures.find((c) => c.slug === slug) : undefined;
+  // Sans serveur, la photo se lit dans celles intégrées au fichier.
+  const fichier = usePhotoWhatsapp(photo && image(photo.source), photo?.nomFichier ?? "chaussure.jpg");
+  // La photo exacte qui part sur WhatsApp (même fabrication que sur le vrai site).
+  const apercuPhoto = useMemo(() => (fichier ? URL.createObjectURL(fichier) : null), [fichier]);
   return (
     <motion.div
       role="status"
@@ -89,47 +89,45 @@ export function Validation({ titre, code, lienWhatsapp, onFermer }: Props) {
             N° <span className="font-semibold text-encre tabular-nums">{code}</span>
           </p>
           <p className="mt-6 text-[15px] text-gris">
-            Sur le vrai site, WhatsApp s&apos;ouvre ici. Voici le message que vous recevrez :
+            Sur le vrai site, le client envoie sa commande sur WhatsApp, puis la photo. Voici ce que vous recevez :
           </p>
-          <div className="mt-4 w-full rounded-[22px] bg-[#e4f2d5] p-3 text-left shadow-sm ring-1 ring-vert/15">
-            <p className="flex items-center gap-2 px-1 text-[13px] font-semibold text-vert">
+          <div className="mt-4 w-full space-y-2">
+            <p className="flex items-center gap-2 px-1 text-left text-[13px] font-semibold text-vert">
               <IconeWhatsapp className="size-4" />
               WhatsApp
             </p>
-            {chaussure && (
-              // Ce que WhatsApp affiche grâce au lien « Photo » : la photo de la chaussure en haut du message.
-              <div className="mt-2 overflow-hidden rounded-2xl bg-white ring-1 ring-black/5">
-                <div className="relative aspect-[1200/630] bg-papier">
-                  <Image src={chaussure.images[0]} alt="" fill className="object-contain p-[5%]" />
-                </div>
-                <div className="px-3 py-2">
-                  <p className="text-[13px] leading-snug font-semibold">
-                    {chaussure.nom} — {chaussure.marque} · Vertical Store
-                  </p>
-                  <p className="text-[12px] text-gris">{chaussure.description.split(".")[0]}.</p>
-                </div>
-              </div>
-            )}
-            <p className="mt-2 px-1 text-[14px] leading-relaxed break-words whitespace-pre-wrap text-encre">
-              {lignes.map((ligne, i) => (
-                <Fragment key={i}>
-                  {ligne.startsWith(PHOTO) ? (
-                    <>
-                      {PHOTO}
-                      <span className="text-[#1c6fb0] underline">…{chemin(ligne.slice(PHOTO.length))}</span>
-                    </>
+            <Bulle>
+              <p className="px-2 py-1 text-[14px] leading-relaxed break-words whitespace-pre-wrap text-encre">
+                {message}
+              </p>
+            </Bulle>
+            {photo && (
+              <Bulle>
+                <div className="relative aspect-[4/3] overflow-hidden rounded-[13px] bg-papier">
+                  {apercuPhoto ? (
+                    <Image src={apercuPhoto} alt="" fill className="object-cover" />
                   ) : (
-                    ligne
+                    <Image src={photo.source} alt="" fill className="object-contain p-[6%]" />
                   )}
-                  {i < lignes.length - 1 && "\n"}
-                </Fragment>
-              ))}
-            </p>
+                </div>
+                <p className="px-2 pt-1.5 pb-1 text-[14px] text-encre">{photo.legende}</p>
+              </Bulle>
+            )}
           </div>
           <a href={lienWhatsapp} className="bouton-plein mt-8 bg-vert hover:bg-vert-fonce">
             <IconeWhatsapp className="size-5" />
             Ouvrir WhatsApp
           </a>
+          {photo && peutPartager(fichier) && (
+            <button
+              type="button"
+              onClick={() => partagerPhoto(fichier, photo.legende).catch(() => false)}
+              className="bouton-contour mt-3"
+            >
+              <IconeAppareilPhoto className="size-5" />
+              Envoyer la photo
+            </button>
+          )}
           <Link
             href="/"
             onClick={onFermer}

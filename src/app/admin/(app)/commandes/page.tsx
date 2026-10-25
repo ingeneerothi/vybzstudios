@@ -4,13 +4,14 @@ import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { EnTeteAdmin } from "@/components/admin/EnTeteAdmin";
 import { useAdmin } from "@/components/admin/Fournisseur";
+import { usePhotoWhatsapp } from "@/components/commande/usePhotoWhatsapp";
 import { IconePartager, IconeTelephone, IconeWhatsapp } from "@/components/site/Icones";
 import { LIBELLES_STATUT } from "@/lib/admin/api";
 import { cn } from "@/lib/cn";
 import { formatDate, formatPrix } from "@/lib/format";
+import { partagerPhoto, peutPartager } from "@/lib/partager";
 import { formaterTelephone, numeroInternationalClient } from "@/lib/telephone";
 import type { Commande, Demande, Statut } from "@/lib/types";
-import { adresseSite, imagePartage } from "@/lib/partage";
 import { lienPartage, lienWhatsapp, messageCommande } from "@/lib/whatsapp";
 
 const STATUTS: Statut[] = ["nouvelle", "envoyee", "livree", "annulee"];
@@ -188,7 +189,6 @@ function CarteCommande({ commande: c, onStatut }: { commande: Commande; onStatut
     lieu,
     adresse: c.adresse,
     repere: c.repere ?? "",
-    lienPhoto: lienPhoto(c.chaussureImage),
   });
 
   return (
@@ -230,15 +230,7 @@ function CarteCommande({ commande: c, onStatut }: { commande: Commande; onStatut
         </div>
       </dl>
       <Contact telephone={c.clientTelephone} nom={c.clientNom} />
-      <a
-        href={lienPartage(message)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="bouton-plein mt-2 min-h-12 w-full text-[15px]"
-      >
-        <IconePartager className="size-5" />
-        Envoyer au livreur
-      </a>
+      <EnvoyerAuLivreur message={message} image={c.chaussureImage} nomFichier={`${c.code}.jpg`} />
       <Statuts actuel={c.statut} onChange={onStatut} />
     </li>
   );
@@ -291,8 +283,32 @@ function CarteDemande({ demande: d, onStatut }: { demande: Demande; onStatut: (s
   );
 }
 
-/** Photo de la chaussure pour le livreur (null en mode démo pour une photo ajoutée depuis l'admin). */
-function lienPhoto(image: string | null): string | null {
-  const partage = imagePartage(image);
-  return partage && typeof window !== "undefined" ? adresseSite(partage, window.location.origin) : null;
+/**
+ * Envoie la commande au livreur. Sur téléphone : par le menu « Partager », la photo de la chaussure part comme
+ * une vraie photo, avec toute la commande en légende ; on choisit le livreur dans WhatsApp.
+ * Ailleurs (ordinateur) : la commande seule, en texte.
+ */
+function EnvoyerAuLivreur({
+  message,
+  image,
+  nomFichier,
+}: {
+  message: string;
+  image: string | null;
+  nomFichier: string;
+}) {
+  const fichier = usePhotoWhatsapp(image, nomFichier);
+  const avecPhoto = peutPartager(fichier);
+
+  async function envoyer() {
+    if (avecPhoto && (await partagerPhoto(fichier, message).catch(() => null)) !== null) return;
+    window.open(lienPartage(message), "_blank", "noopener,noreferrer");
+  }
+
+  return (
+    <button type="button" onClick={envoyer} className="bouton-plein mt-2 min-h-12 w-full text-[15px]">
+      <IconePartager className="size-5" />
+      {avecPhoto ? "Envoyer au livreur, avec la photo" : "Envoyer au livreur"}
+    </button>
+  );
 }
