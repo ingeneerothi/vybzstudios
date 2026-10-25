@@ -3,7 +3,8 @@
 // fichier, qui s'ouvre dans n'importe quel navigateur, sans internet (mode démo, rien n'est envoyé).
 //
 // Produit aussi vertical-store-visite.mp4 (la visite guidée filmée en taille téléphone) et
-// vertical-store-presentation.pdf (les écrans clés, un par page) : les deux s'ouvrent sur tous les téléphones.
+// vertical-store-presentation.pdf (les écrans clés, un par page) et vertical-store-mobile.pdf (chaque écran en
+// entier, au format téléphone) : ils s'ouvrent sur tous les téléphones.
 //
 // Utilisation : npm run apercu                  (relance aussi « next build » pour avoir les styles à jour)
 //               npm run apercu -- --vite        (garde le build Next existant : plus rapide)
@@ -15,6 +16,7 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { build } from "vite";
 import { filmer } from "./filmer.mjs";
+import { creerVersionMobile } from "./mobile.mjs";
 import { creerPresentation, lireLogo } from "./presentation.mjs";
 
 const ici = fileURLToPath(new URL(".", import.meta.url));
@@ -23,6 +25,7 @@ const cache = join(ici, "cache");
 const sortie = join(ici, "sortie", "vertical-store-apercu.html");
 const sortieVideo = join(ici, "sortie", "vertical-store-visite.mp4");
 const sortiePdf = join(ici, "sortie", "vertical-store-presentation.pdf");
+const sortieMobile = join(ici, "sortie", "vertical-store-mobile.pdf");
 const TAILLE_VUE = 720; // px : net sur téléphone, léger pour le fichier
 
 const types = {
@@ -40,7 +43,7 @@ function dataUri(fichier) {
 
 // 1. Les styles du vrai site, compilés par Next (Tailwind, police, fonds).
 if (!process.argv.includes("--vite")) {
-  console.log("1/7 next build (styles du site)…");
+  console.log("1/8 next build (styles du site)…");
   execFileSync("npx", ["next", "build"], {
     cwd: racine,
     stdio: ["ignore", "ignore", "inherit"],
@@ -78,7 +81,7 @@ const css = feuilles
 const imagesCss = `:root{${[...variables].map(([fichier, nom]) => `${nom}:url("${dataUri(fichier)}")`).join(";")}}`;
 
 // 2. Photos réduites, intégrées ensuite au fichier par Vite (voir images.ts).
-console.log("2/7 photos…");
+console.log("2/8 photos…");
 const dossierChaussures = join(racine, "public/chaussures");
 const aJour = (source, copie) => {
   try {
@@ -108,11 +111,11 @@ for (const f of readdirSync(join(racine, "public/marque")).filter((f) => f.endsW
 }
 
 // 3. Les composants du site, assemblés en un seul script.
-console.log("3/7 vite build…");
+console.log("3/8 vite build…");
 await build({ configFile: join(ici, "vite.config.mts") });
 
 // 4. Un seul fichier : styles, script et photos à l'intérieur.
-console.log("4/7 assemblage…");
+console.log("4/8 assemblage…");
 const dist = join(cache, "dist");
 let html = readFileSync(join(dist, "index.html"), "utf8");
 const script = html.match(/<script type="module" crossorigin src="\.\/(assets\/[^"]+\.js)"><\/script>/);
@@ -135,7 +138,7 @@ writeFileSync(
 );
 
 // 5. Visite guidée : vidéo, et écrans clés.
-console.log(process.argv.includes("--sans-video") ? "5/7 écrans…" : "5/7 vidéo et écrans…");
+console.log(process.argv.includes("--sans-video") ? "5/8 écrans…" : "5/8 vidéo et écrans…");
 const captures = await filmer(sortie, {
   video: process.argv.includes("--sans-video") ? null : sortieVideo,
   images: join(cache, "images-video"),
@@ -143,7 +146,7 @@ const captures = await filmer(sortie, {
 
 // 6. Écrans fixes dans le fichier : visibles tant que le site n'a pas démarré. Si un téléphone bloque
 //    le JavaScript (aperçu WhatsApp, fichiers de l'iPhone…), on voit au moins tous les écrans à la suite.
-console.log("6/7 écrans fixes…");
+console.log("6/8 écrans fixes…");
 const figures = [];
 for (const { legende, png } of captures) {
   const webp = await sharp(png).resize({ width: 720 }).webp({ quality: 72 }).toBuffer();
@@ -164,8 +167,15 @@ const final = html.replace("<!--ECRANS-->", () => ecrans);
 writeFileSync(sortie, final);
 
 // 7. Présentation PDF : s'ouvre sur tous les téléphones et dans WhatsApp.
-console.log("7/7 présentation PDF…");
+console.log("7/8 présentation PDF…");
 await creerPresentation(captures, sortiePdf, {
+  police: dataUri(join(racine, "src/app/fonts/archivo-variable.woff2")),
+  logoSvg: lireLogo(join(racine, "public/marque/logo.svg")),
+});
+
+// 8. Version mobile : chaque écran en entier, au format téléphone, une page par écran.
+console.log("8/8 version mobile (PDF)…");
+await creerVersionMobile(sortie, sortieMobile, {
   police: dataUri(join(racine, "src/app/fonts/archivo-variable.woff2")),
   logoSvg: lireLogo(join(racine, "public/marque/logo.svg")),
 });
@@ -173,4 +183,5 @@ await creerPresentation(captures, sortiePdf, {
 const taille = (f) => `${(statSync(f).size / 1024 / 1024).toFixed(1)} Mo`;
 console.log(`✅ ${sortie} (${taille(sortie)})`);
 console.log(`✅ ${sortiePdf} (${taille(sortiePdf)})`);
+console.log(`✅ ${sortieMobile} (${taille(sortieMobile)})`);
 if (!process.argv.includes("--sans-video")) console.log(`✅ ${sortieVideo} (${taille(sortieVideo)})`);

@@ -87,7 +87,7 @@ export function Validation({ titre, code, lienWhatsapp, photo, onFermer }: Props
             N° <span className="font-semibold text-encre tabular-nums">{code}</span>
           </p>
           <p className="mt-6 text-[15px] text-gris">
-            Sur le vrai site, le client envoie sa commande sur WhatsApp, puis la photo. Voici ce que vous recevez :
+            Sur le vrai site, le client envoie sa commande sur WhatsApp, puis la photo. Voici ce que vous recevez&nbsp;:
           </p>
           <div className="mt-4 w-full space-y-2">
             <p className="flex items-center gap-2 px-1 text-left text-[13px] font-semibold text-vert">
