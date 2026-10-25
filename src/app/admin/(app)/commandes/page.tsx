@@ -298,17 +298,27 @@ function EnvoyerAuLivreur({
   nomFichier: string;
 }) {
   const fichier = usePhotoWhatsapp(image, nomFichier);
-  const avecPhoto = peutPartager(fichier);
+  const classe = "bouton-plein mt-2 min-h-12 w-full text-[15px]";
 
-  async function envoyer() {
-    if (avecPhoto && (await partagerPhoto(fichier, message).catch(() => null)) !== null) return;
+  // Sans menu « Partager » : un vrai lien vers WhatsApp, qu'aucun navigateur ne bloque.
+  if (!peutPartager(fichier)) {
+    return (
+      <a href={lienPartage(message)} target="_blank" rel="noopener noreferrer" className={classe}>
+        <IconePartager className="size-5" />
+        Envoyer au livreur
+      </a>
+    );
+  }
+
+  async function envoyer(photo: File) {
+    if ((await partagerPhoto(photo, message).catch(() => null)) !== null) return;
     window.open(lienPartage(message), "_blank", "noopener,noreferrer");
   }
 
   return (
-    <button type="button" onClick={envoyer} className="bouton-plein mt-2 min-h-12 w-full text-[15px]">
+    <button type="button" onClick={() => envoyer(fichier)} className={classe}>
       <IconePartager className="size-5" />
-      {avecPhoto ? "Envoyer au livreur, avec la photo" : "Envoyer au livreur"}
+      Envoyer au livreur, avec la photo
     </button>
   );
 }

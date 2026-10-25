@@ -2,6 +2,7 @@
 // dans un seul fichier HTML. Rien n'est envoyé : commandes et changements restent en mémoire.
 import "./stockage";
 import "./reseau";
+import "./liens";
 import { Fragment, StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import AdminConnecte from "@/app/admin/(app)/layout";

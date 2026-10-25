@@ -32,4 +32,5 @@ Idéal pour montrer la boutique au vendeur avant la mise en ligne. Les commandes
 s'affichent dans l'espace vendeur (lien en bas des pages), et tout repart à zéro à chaque ouverture.
 Le même script filme une visite guidée d'une minute (`apercu/sortie/vertical-store-visite.mp4`), à envoyer sur WhatsApp,
 et produit deux PDF : une présentation des écrans clés et une version mobile (`apercu/sortie/vertical-store-mobile.pdf`),
-où chaque écran apparaît en entier, au format téléphone.
+où chaque écran apparaît en entier, au format téléphone. Enfin, `apercu/sortie/web/` contient la même chose en page web,
+à publier pour l'envoyer par lien.
