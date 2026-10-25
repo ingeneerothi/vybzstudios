@@ -25,7 +25,14 @@ const sortieVideo = join(ici, "sortie", "vertical-store-visite.mp4");
 const sortiePdf = join(ici, "sortie", "vertical-store-presentation.pdf");
 const TAILLE_VUE = 720; // px : net sur téléphone, léger pour le fichier
 
-const types = { ".webp": "image/webp", ".png": "image/png", ".woff2": "font/woff2", ".svg": "image/svg+xml" };
+const types = {
+  ".webp": "image/webp",
+  ".avif": "image/avif",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".woff2": "font/woff2",
+  ".svg": "image/svg+xml",
+};
 function dataUri(fichier) {
   const type = types[fichier.slice(fichier.lastIndexOf("."))] ?? "application/octet-stream";
   return `data:${type};base64,${readFileSync(fichier).toString("base64")}`;
@@ -44,16 +51,31 @@ const accueil = readFileSync(join(racine, ".next/server/app/index.html"), "utf8"
 const classePolice = accueil.match(/<html[^>]*class="([^"]*)"/)?.[1] ?? "antialiased";
 const feuilles = [...new Set([...accueil.matchAll(/href="\/_next\/(static\/[^"]+\.css)"/g)].map((m) => m[1]))];
 if (feuilles.length === 0) throw new Error("Styles introuvables dans .next : lancez d'abord « npx next build ».");
+// Une image utilisée plusieurs fois dans les styles n'est intégrée qu'une fois (variable CSS).
+const variables = new Map();
+function reference(fichier) {
+  if (fichier.endsWith(".woff2")) return `url("${dataUri(fichier)}")`; // @font-face n'accepte pas var()
+  if (!variables.has(fichier)) variables.set(fichier, `--apercu-${variables.size}`);
+  return `var(${variables.get(fichier)})`;
+}
 const css = feuilles
   .map((f) => {
     const dossier = join(racine, ".next", f, "..");
-    return readFileSync(join(racine, ".next", f), "utf8").replace(/url\((["']?)([^"')]+)\1\)/g, (tout, _g, chemin) => {
-      if (chemin.startsWith("data:")) return tout;
-      const fichier = chemin.startsWith("/") ? join(racine, "public", chemin) : join(dossier, chemin);
-      return `url("${dataUri(fichier)}")`;
-    });
+    return (
+      readFileSync(join(racine, ".next", f), "utf8")
+        // image-set(AVIF, WebP) : l'aperçu garde le WebP, lu par tous les navigateurs et lecteurs de téléphone.
+        .replace(/(?:-webkit-)?image-set\(((?:[^()]|\([^()]*\))*)\)/g, (tout, candidats) => {
+          const webp = candidats.match(/["(]([^"'()\s]+\.webp)/);
+          return webp ? `url("${webp[1]}")` : tout;
+        })
+        .replace(/url\((["']?)([^"')]+)\1\)/g, (tout, _g, chemin) => {
+          if (chemin.startsWith("data:")) return tout;
+          return reference(chemin.startsWith("/") ? join(racine, "public", chemin) : join(dossier, chemin));
+        })
+    );
   })
   .join("\n");
+const imagesCss = `:root{${[...variables].map(([fichier, nom]) => `${nom}:url("${dataUri(fichier)}")`).join(";")}}`;
 
 // 2. Photos réduites, intégrées ensuite au fichier par Vite (voir images.ts).
 console.log("2/7 photos…");
@@ -78,7 +100,11 @@ for (const slug of readdirSync(dossierChaussures)) {
 }
 mkdirSync(join(cache, "images/marque"), { recursive: true });
 for (const f of readdirSync(join(racine, "public/marque")).filter((f) => f.endsWith(".webp"))) {
-  writeFileSync(join(cache, "images/marque", f), readFileSync(join(racine, "public/marque", f)));
+  // Photo de fond : assez grande pour un téléphone, sans alourdir le fichier.
+  await sharp(join(racine, "public/marque", f))
+    .resize({ width: 828, withoutEnlargement: true })
+    .webp({ quality: 62, effort: 6 })
+    .toFile(join(cache, "images/marque", f));
 }
 
 // 3. Les composants du site, assemblés en un seul script.
@@ -96,7 +122,7 @@ html = html
   .replace(script[0], () => "")
   .replace("</body>", () => `<script type="module">${js}</script>\n</body>`)
   .replace("%CLASSE_POLICE%", classePolice)
-  .replace("<!--STYLES-->", () => `<style>${css}</style>`)
+  .replace("<!--STYLES-->", () => `<style>${imagesCss}\n${css}</style>`)
   .replace("<!--ICONE-->", () => `<link rel="icon" href="${dataUri(join(racine, "public/icones/icone-192.png"))}" />`);
 
 mkdirSync(join(ici, "sortie"), { recursive: true });

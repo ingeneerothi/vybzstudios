@@ -170,11 +170,16 @@ select.champ {
 }
 
 /* Fond de marque (photo floutée) avec un halo de lumière derrière la chaussure */
+/* La photo de la marque, nette, derrière les chaussures. AVIF léger, WebP pour les navigateurs plus anciens. */
 @utility fond-marque {
   background-color: #1b2410;
   background-image:
     radial-gradient(60% 55% at 50% 55%, rgb(255 255 255 / 0.22), transparent 70%),
-    linear-gradient(180deg, rgb(10 12 8 / 0.2), rgb(10 12 8 / 0.5)), url("/marque/fond-flou.webp");
+    linear-gradient(180deg, rgb(10 12 8 / 0.2), rgb(10 12 8 / 0.5)), url("/marque/fond-galerie.webp");
+  background-image:
+    radial-gradient(60% 55% at 50% 55%, rgb(255 255 255 / 0.22), transparent 70%),
+    linear-gradient(180deg, rgb(10 12 8 / 0.2), rgb(10 12 8 / 0.5)),
+    image-set(url("/marque/fond-galerie.avif") type("image/avif"), url("/marque/fond-galerie.webp") type("image/webp"));
   background-size: cover;
   background-position: center;
 }

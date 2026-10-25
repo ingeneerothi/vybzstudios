@@ -18,8 +18,8 @@ export function HeroAccueil({ vedette, slogan }: { vedette?: Chaussure; slogan: 
         fill
         priority
         sizes="100vw"
-        quality={70}
-        className="-z-20 scale-110 object-cover opacity-90"
+        quality={60}
+        className="-z-20 object-cover opacity-90"
       />
       <div
         aria-hidden
@@ -27,7 +27,7 @@ export function HeroAccueil({ vedette, slogan }: { vedette?: Chaussure; slogan: 
       />
 
       <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-5 pt-[calc(4.5rem+env(safe-area-inset-top))] pb-10 text-center">
-        <div className="flex animate-[entree-douce_0.8s_var(--ease-sortie)_both] flex-col items-center">
+        <div className="flex animate-[entree-douce_0.8s_var(--ease-sortie)_both] flex-col items-center drop-shadow-[0_2px_10px_rgb(0_0_0/0.55)]">
           <LogoMarque className="h-12 w-auto sm:h-14" titre={null} />
           <h1 className="mt-3 text-[15px] font-extrabold tracking-[0.32em] uppercase sm:text-[17px]">Vertical Store</h1>
         </div>

@@ -4,7 +4,7 @@ Vertical Store — prépare les fichiers de marque à partir des originaux.
 
   assets-source/marque/logo-original.jpg  ->  public/marque/logo.svg (vectorisé, couleur = currentColor)
                                               public/icones/*.png (icônes PWA, favicon, Apple)
-  assets-source/marque/fond-original.jpg  ->  public/marque/fond-*.webp (accueil + version floue légère)
+  assets-source/marque/fond-original.jpg  ->  public/marque/fond-*.webp (accueil + fond des fiches, nets)
 
 Utilisation : python scripts/images/preparer_marque.py
 """
@@ -79,16 +79,16 @@ def icone(bitmap: np.ndarray, cote: int, fond, couleur, zone: float) -> Image.Im
 
 def fond() -> None:
     image = Image.open(SOURCE / "fond-original.jpg").convert("RGB")
-    # Le fond est toujours affiché flouté : on floute avant compression (bien plus léger).
-    for largeur in (1024, 640):
-        hauteur = round(image.height * largeur / image.width)
-        reduit = image.resize((largeur, hauteur), Image.LANCZOS)
-        reduit.filter(ImageFilter.GaussianBlur(largeur / 110)).save(
-            MARQUE / f"fond-{largeur}.webp", "WEBP", quality=70, method=6
-        )
-    # Version très floue et minuscule : agrandie en CSS, elle ne pèse presque rien.
-    petit = image.resize((96, 120), Image.LANCZOS).filter(ImageFilter.GaussianBlur(3))
-    petit.save(MARQUE / "fond-flou.webp", "WEBP", quality=80, method=6)
+    # Photo nette. Accueil : source en bonne qualité, que Next redimensionne et compresse pour chaque écran.
+    largeur = min(image.width, 1024)
+    image.resize((largeur, round(image.height * largeur / image.width)), Image.LANCZOS).save(
+        MARQUE / "fond-1024.webp", "WEBP", quality=80, method=6
+    )
+    # Derrière les chaussures des fiches (fond en CSS) : AVIF léger, WebP pour les navigateurs plus anciens.
+    largeur = 720
+    reduit = image.resize((largeur, round(image.height * largeur / image.width)), Image.LANCZOS)
+    reduit.save(MARQUE / "fond-galerie.avif", "AVIF", quality=40, speed=2)
+    reduit.save(MARQUE / "fond-galerie.webp", "WEBP", quality=50, method=6)
 
 
 def main() -> None:

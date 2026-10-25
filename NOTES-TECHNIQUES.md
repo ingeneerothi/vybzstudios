@@ -38,7 +38,7 @@ Tout ce qu'il faut pour installer, mettre en ligne et faire évoluer le site.
 data/catalogue.json            Catalogue de départ (21 chaussures) + zones, numéro, réglages
 assets-source/                 Images originales (montages, logo, fond) et planches de contrôle
 public/chaussures/<slug>/      Vues détourées 1200×1200 (01.webp, 02.webp…)
-public/marque/                 Logo SVG, fonds (flouté léger), icônes
+public/marque/                 Logo SVG, photo de fond nette (AVIF + WebP)
 public/admin.webmanifest       Manifeste PWA de l'admin
 scripts/
   images/decouper_chaussures.py  Découpe + détourage (rembg/BiRefNet) des montages

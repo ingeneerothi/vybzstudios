@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
-    qualities: [70, 80],
+    qualities: [60, 70, 80],
     remotePatterns: supabaseHote
       ? [{ protocol: "https", hostname: supabaseHote, pathname: "/storage/v1/object/public/**" }]
       : [],
