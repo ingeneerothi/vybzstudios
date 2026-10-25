@@ -3,8 +3,11 @@
 // Version aperçu de l'écran de validation : la même coche, puis le message que le vendeur
 // reçoit sur WhatsApp s'affiche ici, au lieu d'ouvrir WhatsApp automatiquement.
 import { motion } from "motion/react";
+import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { IconeWhatsapp } from "@/components/site/Icones";
+import { lireDemo } from "@/lib/demo/magasin";
 import { DUREE, EASE_SORTIE } from "@/lib/motion";
 
 type Props = {
@@ -23,8 +26,23 @@ function messageDuLien(lien: string): string {
   }
 }
 
+const PHOTO = "🖼️ Photo : ";
+
+/** « https://…/chaussure/x » -> « /chaussure/x » (pas encore d'adresse en ligne dans l'aperçu). */
+function chemin(lien: string): string {
+  try {
+    return new URL(lien).pathname;
+  } catch {
+    return lien;
+  }
+}
+
 export function Validation({ titre, code, lienWhatsapp, onFermer }: Props) {
   const message = messageDuLien(lienWhatsapp);
+  const lignes = message.split("\n");
+  const lienPhoto = lignes.find((l) => l.startsWith(PHOTO))?.slice(PHOTO.length);
+  const slug = lienPhoto ? chemin(lienPhoto).split("/").pop() : undefined;
+  const chaussure = slug ? lireDemo().chaussures.find((c) => c.slug === slug) : undefined;
   return (
     <motion.div
       role="status"
@@ -73,12 +91,40 @@ export function Validation({ titre, code, lienWhatsapp, onFermer }: Props) {
           <p className="mt-6 text-[15px] text-gris">
             Sur le vrai site, WhatsApp s&apos;ouvre ici. Voici le message que vous recevrez :
           </p>
-          <div className="mt-4 w-full rounded-[22px] bg-[#e4f2d5] p-4 text-left shadow-sm ring-1 ring-vert/15">
-            <p className="flex items-center gap-2 text-[13px] font-semibold text-vert">
+          <div className="mt-4 w-full rounded-[22px] bg-[#e4f2d5] p-3 text-left shadow-sm ring-1 ring-vert/15">
+            <p className="flex items-center gap-2 px-1 text-[13px] font-semibold text-vert">
               <IconeWhatsapp className="size-4" />
               WhatsApp
             </p>
-            <p className="mt-2 text-[14px] leading-relaxed break-words whitespace-pre-wrap text-encre">{message}</p>
+            {chaussure && (
+              // Ce que WhatsApp affiche grâce au lien « Photo » : la photo de la chaussure en haut du message.
+              <div className="mt-2 overflow-hidden rounded-2xl bg-white ring-1 ring-black/5">
+                <div className="relative aspect-[1200/630] bg-papier">
+                  <Image src={chaussure.images[0]} alt="" fill className="object-contain p-[5%]" />
+                </div>
+                <div className="px-3 py-2">
+                  <p className="text-[13px] leading-snug font-semibold">
+                    {chaussure.nom} — {chaussure.marque} · Vertical Store
+                  </p>
+                  <p className="text-[12px] text-gris">{chaussure.description.split(".")[0]}.</p>
+                </div>
+              </div>
+            )}
+            <p className="mt-2 px-1 text-[14px] leading-relaxed break-words whitespace-pre-wrap text-encre">
+              {lignes.map((ligne, i) => (
+                <Fragment key={i}>
+                  {ligne.startsWith(PHOTO) ? (
+                    <>
+                      {PHOTO}
+                      <span className="text-[#1c6fb0] underline">…{chemin(ligne.slice(PHOTO.length))}</span>
+                    </>
+                  ) : (
+                    ligne
+                  )}
+                  {i < lignes.length - 1 && "\n"}
+                </Fragment>
+              ))}
+            </p>
           </div>
           <a href={lienWhatsapp} className="bouton-plein mt-8 bg-vert hover:bg-vert-fonce">
             <IconeWhatsapp className="size-5" />

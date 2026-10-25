@@ -49,7 +49,7 @@ async function creerCommandeDemo(s: SaisieCommande, ctx: ContexteCommande): Prom
   return modifierDemo((etat) => {
     etat.compteurCommandes += 1;
     const code = codeSuivant("CMD", etat.compteurCommandes);
-    const actif = etat.numeros.find((n) => n.actif)?.numero ?? ctx.whatsapp;
+    const numeroActif = etat.numeros.find((n) => n.actif);
     etat.commandes.unshift({
       id: identifiant(),
       code,
@@ -82,7 +82,8 @@ async function creerCommandeDemo(s: SaisieCommande, ctx: ContexteCommande): Prom
       fraisLivraison: ctx.zone.frais,
       total,
       modePaiement: ctx.modePaiement,
-      whatsapp: actif,
+      whatsapp: numeroActif?.numero ?? ctx.whatsapp,
+      intro: numeroActif?.intro ?? null,
     };
   });
 }

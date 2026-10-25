@@ -161,6 +161,7 @@ describe.each([
       fraisLivraison: 2000,
       total: 28000,
       whatsapp: "2250506523816",
+      intro: null,
       modePaiement: "À la livraison",
     });
     expect(await valeur("select client_telephone from public.commandes where code = 'CMD-0001'")).toBe("0708091011");
@@ -245,7 +246,12 @@ describe.each([
 
   it("garde toujours exactement un numéro WhatsApp actif", async () => {
     await en("admin", async () => {
-      await db.query("insert into public.numeros_whatsapp (libelle, numero) values ('Livreur', '2250700000000')");
+      await db.query(
+        "insert into public.numeros_whatsapp (libelle, numero, intro) values ('Livreur', '2250700000000', 'Bonjour c''est Ange')",
+      );
+      await expect(db.query("update public.numeros_whatsapp set intro = '' where libelle = 'Livreur'")).rejects.toThrow(
+        /check/,
+      );
       const livreur = await valeur<string>("select id from public.numeros_whatsapp where libelle = 'Livreur'");
       const boutique = await valeur<string>("select id from public.numeros_whatsapp where libelle = 'Boutique'");
 
@@ -270,6 +276,7 @@ describe.each([
     const abidjan = await zone("Abidjan");
     const r = await en("anon", () => commander({ zoneId: abidjan, telephone: "0505050505" }));
     expect(r.whatsapp).toBe("2250700000000");
+    expect(r.intro).toBe("Bonjour c'est Ange");
   });
 
   it("crée une demande d'article", async () => {

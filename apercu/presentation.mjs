@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { chromium } from "@playwright/test";
 import sharp from "sharp";
 
-const VENDEUR = new Set(["connexion", "chaussures", "commandes", "numeros", "reglages"]);
+const VENDEUR = new Set(["connexion", "chaussures", "commandes", "numeros", "numero-autre", "reglages"]);
 
 const echapper = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 

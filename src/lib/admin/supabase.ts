@@ -1,6 +1,8 @@
 import { rafraichirSite } from "@/app/admin/actions";
 import { SUPABASE_URL, urlPublique } from "../env";
 import { supabaseNavigateur } from "../supabase/navigateur";
+import { imageDePartage } from "../images/partage";
+import { NOM_PARTAGE } from "../partage";
 import { normaliserNumeroWhatsapp } from "../telephone";
 import type { Chaussure, Commande, Demande, DetailsZone, Statut } from "../types";
 import { type AdminApi, ErreurAdmin } from "./api";
@@ -197,6 +199,20 @@ export function apiSupabase(): AdminApi {
           await sb.from("chaussure_images").insert(urls.map((url, position) => ({ chaussure_id: id, url, position }))),
         );
       }
+      // Photo montrée par WhatsApp sous le lien de la chaussure (commandes) : à côté de la photo principale.
+      const principale = urls[0];
+      if (principale && cheminProduit(principale)) {
+        const premiere = photos[0];
+        try {
+          const jpeg = await imageDePartage(premiere && "blob" in premiere ? premiere.blob : principale);
+          await sb.storage
+            .from("produits")
+            .upload(`${id}/${NOM_PARTAGE}`, jpeg, { contentType: "image/jpeg", upsert: true, cacheControl: "3600" });
+        } catch {
+          // Facultatif : sans elle, WhatsApp affiche le lien sans photo.
+        }
+      }
+
       const retirees = anciennes
         .filter((u: string) => !urls.includes(u))
         .map(cheminProduit)
@@ -304,26 +320,36 @@ export function apiSupabase(): AdminApi {
     },
 
     async numeros() {
-      const r = await sb.from("numeros_whatsapp").select("id, libelle, numero, actif").order("cree_le");
+      const r = await sb.from("numeros_whatsapp").select("id, libelle, numero, actif, intro").order("cree_le");
       return verifier(r) ?? [];
     },
 
-    async ajouterNumero(libelle, numero) {
+    async ajouterNumero(libelle, numero, intro) {
       const normalise = normaliserNumeroWhatsapp(numero);
       if (!normalise) throw new ErreurAdmin("Numéro invalide. Exemple : 05 06 52 38 16 (ou +33... pour l'étranger).");
       const existants = await api.numeros();
       verifier(
         await sb
           .from("numeros_whatsapp")
-          .insert({ libelle: libelle.trim(), numero: normalise, actif: existants.length === 0 }),
+          .insert({
+            libelle: libelle.trim(),
+            numero: normalise,
+            actif: existants.length === 0,
+            intro: intro.trim() || null,
+          }),
       );
       await rafraichir();
     },
 
-    async modifierNumero(id, libelle, numero) {
+    async modifierNumero(id, libelle, numero, intro) {
       const normalise = normaliserNumeroWhatsapp(numero);
       if (!normalise) throw new ErreurAdmin("Numéro invalide. Exemple : 05 06 52 38 16 (ou +33... pour l'étranger).");
-      verifier(await sb.from("numeros_whatsapp").update({ libelle: libelle.trim(), numero: normalise }).eq("id", id));
+      verifier(
+        await sb
+          .from("numeros_whatsapp")
+          .update({ libelle: libelle.trim(), numero: normalise, intro: intro.trim() || null })
+          .eq("id", id),
+      );
       await rafraichir();
     },
 

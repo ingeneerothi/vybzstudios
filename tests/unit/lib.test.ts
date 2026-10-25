@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { genererDescription } from "@/lib/admin/description";
 import { creerSlug } from "@/lib/admin/slug";
 import { marquerNouveautes } from "@/lib/donnees/nouveautes";
+import { adresseSite, imagePartage } from "@/lib/partage";
 import { formatPrix, formatPrixTexte, libellePaiement } from "@/lib/format";
 import {
   estEnRupture,
@@ -152,6 +153,37 @@ describe("messages WhatsApp", () => {
         "💳 Paiement : À la livraison",
       ].join("\n"),
     );
+  });
+
+  it("ajoute la photo et la phrase du numéro qui reçoit", () => {
+    const lignes = messageCommande({
+      ...commande,
+      intro: "Bonjour c'est Ange",
+      lienPhoto: "https://vertical.example/chaussure/nike-air-max-95-corteiz-kaki",
+    }).split("\n");
+    expect(lignes.slice(0, 5)).toEqual([
+      "Bonjour c'est Ange",
+      "",
+      "🛒 NOUVELLE COMMANDE VERTICAL STORE — CMD-0042",
+      "👟 Chaussure : Air Max 95 x Corteiz Kaki",
+      "🖼️ Photo : https://vertical.example/chaussure/nike-air-max-95-corteiz-kaki",
+    ]);
+    expect(lignes.at(-1)).toBe("💳 Paiement : À la livraison");
+    // Numéro principal : pas de phrase.
+    expect(messageCommande({ ...commande, intro: null }).startsWith("🛒")).toBe(true);
+  });
+
+  it("place l'image d'aperçu WhatsApp à côté de la photo principale", () => {
+    expect(imagePartage("/chaussures/nike-air-force-1-noir/01.webp")).toBe(
+      "/chaussures/nike-air-force-1-noir/partage.jpg",
+    );
+    expect(imagePartage("https://abc.supabase.co/storage/v1/object/public/produits/42/9f.webp")).toBe(
+      "https://abc.supabase.co/storage/v1/object/public/produits/42/partage.jpg",
+    );
+    expect(imagePartage("data:image/webp;base64,AAAA")).toBeNull();
+    expect(imagePartage(undefined)).toBeNull();
+    expect(adresseSite("/chaussure/x", "https://site.ci")).toBe("https://site.ci/chaussure/x");
+    expect(adresseSite("https://abc.supabase.co/x.jpg", "https://site.ci")).toBe("https://abc.supabase.co/x.jpg");
   });
 
   it("détaille le prix quand il y a plusieurs paires", () => {

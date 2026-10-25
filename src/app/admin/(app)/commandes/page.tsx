@@ -10,6 +10,7 @@ import { cn } from "@/lib/cn";
 import { formatDate, formatPrix } from "@/lib/format";
 import { formaterTelephone, numeroInternationalClient } from "@/lib/telephone";
 import type { Commande, Demande, Statut } from "@/lib/types";
+import { adresseSite, imagePartage } from "@/lib/partage";
 import { lienPartage, lienWhatsapp, messageCommande } from "@/lib/whatsapp";
 
 const STATUTS: Statut[] = ["nouvelle", "envoyee", "livree", "annulee"];
@@ -187,6 +188,7 @@ function CarteCommande({ commande: c, onStatut }: { commande: Commande; onStatut
     lieu,
     adresse: c.adresse,
     repere: c.repere ?? "",
+    lienPhoto: lienPhoto(c.chaussureImage),
   });
 
   return (
@@ -287,4 +289,10 @@ function CarteDemande({ demande: d, onStatut }: { demande: Demande; onStatut: (s
       <Statuts actuel={d.statut} onChange={onStatut} />
     </li>
   );
+}
+
+/** Photo de la chaussure pour le livreur (null en mode démo pour une photo ajoutée depuis l'admin). */
+function lienPhoto(image: string | null): string | null {
+  const partage = imagePartage(image);
+  return partage && typeof window !== "undefined" ? adresseSite(partage, window.location.origin) : null;
 }

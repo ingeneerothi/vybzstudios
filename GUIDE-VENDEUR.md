@@ -95,6 +95,11 @@ Pour arrêter la promo : désactivez **Faire une réduction** puis enregistrez.
 **Ajouter un numéro** : **Ajouter un numéro** → nom (ex. « Mon frère ») → numéro (ex. `05 06 52 38 16`) → **Enregistrer**.
 Numéro étranger : commencez par `+` et l'indicatif (ex. `+33 6 12 34 56 78`).
 
+**Phrase au début des commandes** : pour un numéro autre que le vôtre (livreur, frère…), le champ est déjà rempli avec
+« Bonjour c'est Ange ». Quand ce numéro est actif, chaque commande commence par cette phrase : la personne qui la reçoit
+sait qu'elle vient de vous. Vous pouvez la changer, ou la vider (c'est le cas pour le numéro principal). Elle s'affiche
+sous le numéro : « Commandes précédées de « Bonjour c'est Ange » ».
+
 > Le numéro actif ne peut pas être supprimé : activez d'abord un autre numéro. Il y a toujours un numéro qui reçoit.
 
 ---
@@ -124,17 +129,21 @@ Quand un client commande :
 ```
 🛒 NOUVELLE COMMANDE VERTICAL STORE — CMD-0042
 👟 Chaussure : Air Max 95 x Corteiz Kaki
+🖼️ Photo : https://…/chaussure/nike-air-max-95-corteiz-kaki
 📏 Pointure : 42
 ...
 ✅ TOTAL : 24 000 FCFA
 ```
+
+La **photo de la chaussure** s'affiche en haut du message (WhatsApp la montre grâce au lien « Photo »). Si un autre numéro
+que le vôtre est actif, le message commence par sa phrase (ex. « Bonjour c'est Ange »).
 
 Ce message peut être **transféré tel quel au livreur**.
 
 Dans l'onglet **Commandes** :
 - Les plus récentes sont en haut. Le chiffre rouge = nouvelles commandes.
 - **Appeler** / **WhatsApp** : contacter le client.
-- **Envoyer au livreur** : ouvre WhatsApp avec la commande ; choisissez le livreur.
+- **Envoyer au livreur** : ouvre WhatsApp avec la commande et le lien de la photo ; choisissez le livreur.
 - Touchez le statut : **Nouvelle**, **Envoyée au livreur**, **Livrée** ou **Annulée**.
 - **Actualiser** (en haut) pour voir les dernières commandes.
 

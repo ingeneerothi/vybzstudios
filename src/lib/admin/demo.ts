@@ -126,7 +126,7 @@ export function apiDemo(): AdminApi {
     async numeros() {
       return lireDemo().numeros;
     },
-    async ajouterNumero(libelle, numero) {
+    async ajouterNumero(libelle, numero, intro) {
       const normalise = normaliserNumeroWhatsapp(numero);
       if (!normalise) throw new ErreurAdmin("Numéro invalide. Exemple : 05 06 52 38 16 (ou +33... pour l'étranger).");
       modifierDemo((etat) => {
@@ -135,15 +135,16 @@ export function apiDemo(): AdminApi {
           libelle: libelle.trim(),
           numero: normalise,
           actif: etat.numeros.length === 0,
+          intro: intro.trim() || null,
         });
       });
     },
-    async modifierNumero(id, libelle, numero) {
+    async modifierNumero(id, libelle, numero, intro) {
       const normalise = normaliserNumeroWhatsapp(numero);
       if (!normalise) throw new ErreurAdmin("Numéro invalide. Exemple : 05 06 52 38 16 (ou +33... pour l'étranger).");
       modifierDemo((etat) => {
         const n = etat.numeros.find((x) => x.id === id);
-        if (n) Object.assign(n, { libelle: libelle.trim(), numero: normalise });
+        if (n) Object.assign(n, { libelle: libelle.trim(), numero: normalise, intro: intro.trim() || null });
       });
     },
     async supprimerNumero(id) {

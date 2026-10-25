@@ -44,6 +44,7 @@ scripts/
   images/decouper_chaussures.py  Découpe + détourage (rembg/BiRefNet) des montages
   images/preparer_marque.py      Logo vectorisé, icônes PWA, fonds
   generer-seed.mjs               data/catalogue.json -> supabase/seed.sql + installation.sql
+  generer-partage.mjs            Image d'aperçu WhatsApp (partage.jpg) de chaque chaussure (npm run partage)
   captures.mjs                   Captures d'écran 375/390/412/768/1440 px
 apercu/                        Aperçu hors ligne en un fichier HTML (npm run apercu)
 supabase/
@@ -216,6 +217,24 @@ pip install -r scripts/images/requirements.txt
 5. `git add` + `git commit` + `git push` pour publier les images.
 
 Modèle plus rapide (moins précis sur les chaussures blanches) : `--modele isnet-general-use`.
+
+## 8 ter. Photo de la chaussure dans la commande WhatsApp
+
+Un lien `wa.me` ne transporte que du texte : la commande contient donc le lien de la fiche (`🖼️ Photo : https://…/chaussure/<slug>`),
+et WhatsApp affiche en haut du message l'image `og:image` de cette fiche. Cette image est un JPEG 1200×630 nommé `partage.jpg`,
+rangé à côté de la photo principale (`src/lib/partage.ts`) :
+
+- catalogue de départ : `npm run partage` (script `scripts/generer-partage.mjs`) crée `public/chaussures/<slug>/partage.jpg` ;
+  à relancer après avoir ajouté ou changé des photos dans `public/chaussures/` ;
+- chaussures ajoutées depuis l'admin : le navigateur fabrique l'image (`src/lib/images/partage.ts`) et l'envoie dans
+  `produits/<id>/partage.jpg` à chaque enregistrement.
+
+L'aperçu n'apparaît qu'une fois le site en ligne (WhatsApp va chercher la fiche sur internet).
+Le bouton « Envoyer au livreur » de l'admin ajoute le lien direct vers `partage.jpg`.
+
+**Phrase au début des commandes** : colonne `numeros_whatsapp.intro` (vide pour le numéro principal), réglée dans
+l'onglet Numéros et proposée d'office (« Bonjour c'est Ange ») pour tout numéro ajouté après le premier.
+`creer_commande` renvoie la phrase du numéro actif (`intro`), que `messageCommande` place en tête du message.
 
 ## 8 bis. Aperçu hors ligne (`npm run apercu`)
 

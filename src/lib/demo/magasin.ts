@@ -21,7 +21,13 @@ function etatInitial(): EtatDemo {
   return {
     chaussures: catalogue.chaussures,
     zones: catalogue.zones,
-    numeros: NUMEROS_DEMO.map((n, i) => ({ id: `numero-${i + 1}`, libelle: n.nom, numero: n.numero, actif: n.actif })),
+    numeros: NUMEROS_DEMO.map((n, i) => ({
+      id: `numero-${i + 1}`,
+      libelle: n.nom,
+      numero: n.numero,
+      actif: n.actif,
+      intro: null,
+    })),
     reglages: catalogue.reglages,
     commandes: [],
     demandes: [],

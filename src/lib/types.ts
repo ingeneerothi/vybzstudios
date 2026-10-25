@@ -52,6 +52,8 @@ export interface NumeroWhatsapp {
   libelle: string;
   numero: string;
   actif: boolean;
+  /** Phrase en haut des commandes envoyées à ce numéro (ex. « Bonjour c'est Ange »), null pour le principal. */
+  intro: string | null;
 }
 
 export interface Commande {
@@ -115,6 +117,8 @@ export interface ResultatCommande {
   total: number;
   modePaiement: string;
   whatsapp: string;
+  /** Phrase du numéro qui reçoit la commande, à mettre en haut du message. */
+  intro?: string | null;
 }
 
 export interface SaisieDemande {

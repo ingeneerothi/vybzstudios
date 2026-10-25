@@ -41,8 +41,8 @@ export interface AdminApi {
   statutDemande(id: string, statut: Statut): Promise<void>;
 
   numeros(): Promise<NumeroWhatsapp[]>;
-  ajouterNumero(libelle: string, numero: string): Promise<void>;
-  modifierNumero(id: string, libelle: string, numero: string): Promise<void>;
+  ajouterNumero(libelle: string, numero: string, intro: string): Promise<void>;
+  modifierNumero(id: string, libelle: string, numero: string, intro: string): Promise<void>;
   supprimerNumero(id: string): Promise<void>;
   activerNumero(id: string): Promise<void>;
 

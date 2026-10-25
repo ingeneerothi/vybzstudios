@@ -102,6 +102,10 @@ create table if not exists public.numeros_whatsapp (
   cree_le timestamptz not null default now()
 );
 create unique index if not exists un_seul_numero_actif on public.numeros_whatsapp ((true)) where actif;
+-- Phrase ajoutée en haut des commandes envoyées à ce numéro (ex. « Bonjour c'est Ange »).
+-- Vide pour le numéro principal de la boutique.
+alter table public.numeros_whatsapp add column if not exists intro text
+  check (intro is null or char_length(intro) between 1 and 120);
 
 create or replace function public.verifier_numero_actif() returns trigger
 language plpgsql security definer set search_path = '' as $$
@@ -301,6 +305,7 @@ declare
   v_prix integer;
   v_total integer;
   v_numero text;
+  v_intro text;
   v_paiement text;
   v_image text;
   v_code text;
@@ -355,7 +360,7 @@ begin
   end;
   v_total := v_prix * p_quantite + z.frais;
 
-  select numero into v_numero from public.numeros_whatsapp where actif limit 1;
+  select numero, intro into v_numero, v_intro from public.numeros_whatsapp where actif limit 1;
   if v_numero is null then
     raise exception 'La boutique ne peut pas recevoir de commande pour le moment.' using errcode = 'P0001';
   end if;
@@ -385,7 +390,8 @@ begin
     'fraisLivraison', z.frais,
     'total', v_total,
     'modePaiement', coalesce(v_paiement, 'À la livraison'),
-    'whatsapp', v_numero
+    'whatsapp', v_numero,
+    'intro', v_intro
   );
 end $$;
 

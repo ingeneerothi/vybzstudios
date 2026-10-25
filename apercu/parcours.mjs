@@ -105,7 +105,7 @@ export async function parcourir(page, { ecran, pause }) {
   await ecran("commande", "Commande en une page : le total se calcule tout seul");
   await toucher(page, page.getByRole("button", { name: /^Commander ·/ }));
   await pause(3200);
-  await ecran("validation", "Le client arrive sur WhatsApp avec ce message prêt à envoyer");
+  await ecran("validation", "Le client arrive sur WhatsApp avec sa commande, photo de la chaussure comprise");
   await pause(1500);
   await toucher(page, page.getByRole("link", { name: "Retour à la boutique" }));
   await pause(1200);
@@ -135,6 +135,15 @@ export async function parcourir(page, { ecran, pause }) {
   await toucher(page, page.getByRole("link", { name: "Numéros" }));
   await pause(1700);
   await ecran("numeros", "Numéros WhatsApp : un seul reçoit les commandes, on change d'un toucher");
+  await toucher(page, page.getByRole("button", { name: "Ajouter un numéro" }));
+  await pause(900);
+  await page
+    .getByRole("textbox", { name: /Phrase au début des commandes/ })
+    .evaluate((champ) => champ.scrollIntoView({ block: "center", behavior: "smooth" }));
+  await pause(1800);
+  await ecran("numero-autre", "Autre numéro (livreur, frère…) : ses commandes commencent par « Bonjour c'est Ange »");
+  await toucher(page, page.getByRole("button", { name: "Annuler" }));
+  await pause(900);
   await toucher(page, page.getByRole("link", { name: "Réglages" }));
   await pause(1500);
   await ecran("reglages", "Réglages : zones et frais de livraison, slogan, chaussure vedette");

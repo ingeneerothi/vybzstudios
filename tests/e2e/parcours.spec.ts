@@ -62,6 +62,7 @@ test("catalogue → produit → pointure → commande → message WhatsApp", asy
   expect(message.split("\n")).toEqual([
     "🛒 NOUVELLE COMMANDE VERTICAL STORE — CMD-0001",
     "👟 Chaussure : Air Force 1 Triple Noir",
+    `🖼️ Photo : ${new URL(page.url()).origin}/chaussure/nike-air-force-1-noir`,
     "📏 Pointure : 42",
     "🔢 Quantité : 1",
     "💰 Prix : 13 000 FCFA",
@@ -146,11 +147,14 @@ test("admin (démo) : connexion, rupture, numéro actif utilisé par la commande
   await page.getByRole("button", { name: "Ajouter un numéro" }).click();
   await page.getByRole("textbox", { name: /^Nom \(/ }).fill("Livreur");
   await page.getByRole("textbox", { name: "Numéro WhatsApp" }).fill("07 00 00 00 01");
+  // Numéro autre que le principal : la phrase « Bonjour c'est Ange » est proposée d'office.
+  await expect(page.getByRole("textbox", { name: /Phrase au début des commandes/ })).toHaveValue("Bonjour c'est Ange");
   await page.getByRole("button", { name: "Enregistrer" }).click();
   await expect(page.getByText("Numéro ajouté ✅")).toBeVisible();
   await page.getByRole("button", { name: "Activer" }).click();
   await expect(page.getByText(/Numéro activé ✅/)).toBeVisible();
   await expect(page.getByText("En ce moment : Livreur")).toBeVisible();
+  await expect(page.getByText("Commandes précédées de « Bonjour c'est Ange »")).toBeVisible();
 
   // Le numéro actif ne peut pas être supprimé.
   await expect(
@@ -165,8 +169,13 @@ test("admin (démo) : connexion, rupture, numéro actif utilisé par la commande
   await page.getByRole("textbox", { name: "Adresse précise" }).fill("Rue du Canal");
   const whatsapp = await capturerWhatsapp(page);
   await page.getByRole("button", { name: /^Commander/ }).click();
-  const { numero } = await whatsapp();
+  const { numero, message } = await whatsapp();
   expect(numero).toBe("2250700000001");
+  expect(message.split("\n").slice(0, 3)).toEqual([
+    "Bonjour c'est Ange",
+    "",
+    "🛒 NOUVELLE COMMANDE VERTICAL STORE — CMD-0001",
+  ]);
 
   await page.goto("/admin/commandes");
   await expect(page.getByText("CMD-0001")).toBeVisible();

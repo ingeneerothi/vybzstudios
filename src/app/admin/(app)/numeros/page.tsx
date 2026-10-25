@@ -10,7 +10,10 @@ import { DUREE, EASE_SORTIE } from "@/lib/motion";
 import { afficherNumeroWhatsapp } from "@/lib/telephone";
 import type { NumeroWhatsapp } from "@/lib/types";
 
-type Edition = { id?: string; libelle: string; numero: string };
+type Edition = { id?: string; libelle: string; numero: string; intro: string };
+
+/** Proposée pour tout numéro ajouté après le principal : la personne qui reçoit sait que la commande vient d'Ange. */
+const INTRO_AUTRE_NUMERO = "Bonjour c'est Ange";
 
 export default function Numeros() {
   const uid = useId();
@@ -58,8 +61,8 @@ export default function Numeros() {
     const fait = await executer(
       () =>
         (edition.id
-          ? api.modifierNumero(edition.id, edition.libelle, edition.numero)
-          : api.ajouterNumero(edition.libelle, edition.numero)
+          ? api.modifierNumero(edition.id, edition.libelle, edition.numero, edition.intro)
+          : api.ajouterNumero(edition.libelle, edition.numero, edition.intro)
         ).then(() => true),
       edition.id ? "Numéro modifié ✅" : "Numéro ajouté ✅",
     );
@@ -96,6 +99,11 @@ export default function Numeros() {
                 <div className="min-w-0">
                   <p className="truncate text-[18px] font-semibold">{n.libelle}</p>
                   <p className="text-[16px] text-gris tabular-nums">{afficherNumeroWhatsapp(n.numero)}</p>
+                  {n.intro && (
+                    <p className="mt-1 text-[15px] text-gris">
+                      Commandes précédées de «&nbsp;<span className="text-encre">{n.intro}</span>&nbsp;»
+                    </p>
+                  )}
                 </div>
                 {n.actif ? (
                   <span className="shrink-0 rounded-full bg-vert px-3 py-1.5 text-[14px] font-semibold text-white">
@@ -114,7 +122,14 @@ export default function Numeros() {
               <div className="mt-3 flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setEdition({ id: n.id, libelle: n.libelle, numero: afficherNumeroWhatsapp(n.numero) })}
+                  onClick={() =>
+                    setEdition({
+                      id: n.id,
+                      libelle: n.libelle,
+                      numero: afficherNumeroWhatsapp(n.numero),
+                      intro: n.intro ?? "",
+                    })
+                  }
                   className="bouton-contour min-h-12 flex-1 px-3 text-[15px]"
                 >
                   <IconeCrayon className="size-5" />
@@ -180,6 +195,22 @@ export default function Numeros() {
                   Numéro ivoirien à 10 chiffres. Étranger : commencez par +.
                 </p>
               </div>
+              <div>
+                <label htmlFor={`${uid}-intro`} className="mb-2 block font-medium">
+                  Phrase au début des commandes <span className="font-normal text-gris">(facultatif)</span>
+                </label>
+                <input
+                  id={`${uid}-intro`}
+                  maxLength={120}
+                  placeholder={INTRO_AUTRE_NUMERO}
+                  value={edition.intro}
+                  onChange={(e) => setEdition({ ...edition, intro: e.target.value })}
+                  className="champ min-h-14 text-[17px]"
+                />
+                <p className="mt-1.5 text-[14px] text-gris">
+                  Écrite en haut de chaque commande envoyée à ce numéro. Laissez vide pour le numéro principal.
+                </p>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 <button type="button" onClick={() => setEdition(null)} className="bouton-contour min-h-14 text-[17px]">
                   Annuler
@@ -193,7 +224,7 @@ export default function Numeros() {
             <motion.button
               key="ajouter"
               type="button"
-              onClick={() => setEdition({ libelle: "", numero: "" })}
+              onClick={() => setEdition({ libelle: "", numero: "", intro: numeros?.length ? INTRO_AUTRE_NUMERO : "" })}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

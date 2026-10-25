@@ -12,7 +12,8 @@
     "seed": "node scripts/generer-seed.mjs",
     "e2e": "playwright test",
     "captures": "node scripts/captures.mjs",
-    "apercu": "node apercu/assembler.mjs"
+    "apercu": "node apercu/assembler.mjs",
+    "partage": "node scripts/generer-partage.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
