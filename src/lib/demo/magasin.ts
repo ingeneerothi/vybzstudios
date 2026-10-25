@@ -65,8 +65,4 @@ export function codeSuivant(prefixe: "CMD" | "DEM", n: number): string {
   return `${prefixe}-${n < 10000 ? String(n).padStart(4, "0") : n}`;
 }
 
-export function identifiant(): string {
-  return typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID()
-    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
-}
+export { identifiant } from "../identifiant";

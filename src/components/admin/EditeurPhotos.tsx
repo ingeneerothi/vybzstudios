@@ -14,6 +14,7 @@ import {
 } from "@/components/site/Icones";
 import type { PhotoSaisie } from "@/lib/admin/api";
 import { preparerPhotos } from "@/lib/admin/detourage";
+import { identifiant } from "@/lib/identifiant";
 import { DUREE, EASE_SORTIE } from "@/lib/motion";
 import { Interrupteur } from "./Interrupteur";
 
@@ -42,7 +43,7 @@ export function EditeurPhotos({ photos, onChange, nom, erreur }: Props) {
       const vues = await preparerPhotos([...fichiers], { montage, detourer }, (fait, total) =>
         setEtat(`Préparation des photos… ${fait}/${total}`),
       );
-      onChange([...photos, ...vues.map((v) => ({ cle: crypto.randomUUID(), blob: v.blob, apercu: v.apercu }))]);
+      onChange([...photos, ...vues.map((v) => ({ cle: identifiant(), blob: v.blob, apercu: v.apercu }))]);
     } catch (e) {
       setProbleme(e instanceof Error ? e.message : "Ces photos n'ont pas pu être préparées.");
     } finally {
