@@ -1,6 +1,7 @@
 // Aperçu hors ligne : le vrai site et le vrai espace vendeur (mêmes composants), en mode démo,
 // dans un seul fichier HTML. Rien n'est envoyé : commandes et changements restent en mémoire.
 import "./stockage";
+import "./reseau";
 import { Fragment, StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import AdminConnecte from "@/app/admin/(app)/layout";

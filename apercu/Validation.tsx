@@ -10,7 +10,6 @@ import { usePhotoWhatsapp } from "@/components/commande/usePhotoWhatsapp";
 import { IconeAppareilPhoto, IconeWhatsapp } from "@/components/site/Icones";
 import { DUREE, EASE_SORTIE } from "@/lib/motion";
 import { partagerPhoto, peutPartager } from "@/lib/partager";
-import { image } from "./images";
 
 type Props = {
   titre: string;
@@ -39,8 +38,7 @@ function Bulle({ children }: { children: React.ReactNode }) {
 
 export function Validation({ titre, code, lienWhatsapp, photo, onFermer }: Props) {
   const message = messageDuLien(lienWhatsapp);
-  // Sans serveur, la photo se lit dans celles intégrées au fichier.
-  const fichier = usePhotoWhatsapp(photo && image(photo.source), photo?.nomFichier ?? "chaussure.jpg");
+  const fichier = usePhotoWhatsapp(photo?.source, photo?.nomFichier ?? "chaussure.jpg");
   // La photo exacte qui part sur WhatsApp (même fabrication que sur le vrai site).
   const apercuPhoto = useMemo(() => (fichier ? URL.createObjectURL(fichier) : null), [fichier]);
   return (
