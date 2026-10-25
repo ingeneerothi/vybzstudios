@@ -56,12 +56,14 @@ src/
   app/(site)/                  Site public : accueil, collection, chaussure/[slug], commander/[slug], demande
   app/admin/                   Admin : connexion, mot de passe, (app)/chaussures|commandes|numeros|reglages
   app/auth/confirmer/route.ts  Lien « mot de passe oublié » reçu par email
+  app/api/commandes/route.ts   Commande : enregistrée, puis envoyée au vendeur avec la photo (API WhatsApp)
   components/site|chaussure|commande|admin|marque|pages
   lib/
     donnees/                   Lecture du catalogue (Supabase ou démo) + cache
     admin/                     API admin (Supabase / démo), détourage navigateur, descriptions
     commande.ts                Envoi commande / demande
-    whatsapp.ts                Messages et liens wa.me
+    serveur/                   Serveur seulement : commande enregistrée + envoi au vendeur (API WhatsApp Business)
+    whatsapp.ts                Messages et liens wa.me, modèle du message envoyé au vendeur
     prix.ts, telephone.ts, format.ts, motion.ts (langage de mouvement)
 tests/
   unit/                        Vitest : prix, téléphone, messages, slugs…
@@ -220,19 +222,27 @@ Modèle plus rapide (moins précis sur les chaussures blanches) : `--modele isne
 
 ## 8 ter. Photo de la chaussure dans la commande WhatsApp
 
-Un lien `wa.me` ne transporte que du texte. Pour que la photo arrive comme une **vraie photo** (et pas comme un lien),
-le site passe par le menu « Partager » du téléphone (Web Share API, `src/lib/partager.ts`) : la photo part dans
-WhatsApp, le texte en légende. La photo est un JPEG 1200×900 fabriqué dans le navigateur à partir de la photo
-principale (chaussure sur le fond du site, `src/lib/images/vitrine.ts`), préparé dès l'affichage de l'écran.
+Un lien `wa.me` ne transporte que du texte. Pour que le vendeur reçoive une **vraie photo** (et pas un lien) :
 
-- **Client** (`Validation.tsx`) : sur un téléphone qui sait partager une photo, l'écran de validation propose deux
-  étapes au lieu d'ouvrir WhatsApp tout seul : « 1. Ouvrir WhatsApp » (le message), puis « 2. Envoyer la photo »
-  (même discussion, en haut de la liste). Ailleurs (ordinateur), comportement d'avant : WhatsApp s'ouvre seul.
-- **Vendeur** (onglet Commandes) : « Envoyer au livreur, avec la photo » partage la photo avec toute la commande en
-  légende ; on choisit le livreur dans WhatsApp. Sur ordinateur : la commande en texte (`wa.me/?text=`).
+1. **Le site l'envoie lui-même** (garanti ; activation : MISE-EN-LIGNE.md, étape 5). Avec Supabase, la commande passe
+   par `POST /api/commandes` (`src/app/api/commandes/route.ts` → `src/lib/serveur/commande.ts`) : le serveur appelle
+   `creer_commande`, puis envoie au numéro actif le modèle WhatsApp `nouvelle_commande` par l'API WhatsApp Cloud de
+   Meta (`src/lib/serveur/whatsappApi.ts`). En-tête : la `partage.jpg` de la chaussure (JPEG public, lu par Meta) ;
+   corps : les 13 valeurs de `valeursCommande()`. Le texte du modèle vient de `modeleMessageVendeur()`, et un test
+   vérifie qu'il est recopié tel quel dans MISE-EN-LIGNE.md. Réglages serveur : `WHATSAPP_JETON`,
+   `WHATSAPP_NUMERO_ID` (facultatifs : `WHATSAPP_MODELE`, `WHATSAPP_LANGUE`). La réponse porte `vendeurPrevenu` :
+   s'il vaut `true`, le client n'a plus que son message à envoyer (WhatsApp s'ouvre seul). Un échec d'envoi ne bloque
+   jamais la commande : il est noté dans les journaux (Vercel → Logs).
+2. **Le client l'envoie** (repli : API non réglée ou envoi échoué) par le menu « Partager » du téléphone (Web Share
+   API, `src/lib/partager.ts`) : la photo part dans WhatsApp, le texte en légende. C'est un JPEG 1200×900 fabriqué dans
+   le navigateur à partir de la photo principale (chaussure sur le fond du site, `src/lib/images/vitrine.ts`).
+   L'écran de validation (`Validation.tsx`) propose alors deux étapes : « 1. Ouvrir WhatsApp » (le message), puis
+   « 2. Envoyer la photo » (même discussion, en haut de la liste). Sans menu « Partager » (ordinateur, navigateurs
+   intégrés aux réseaux sociaux), seul le texte part.
 
-Envoyer la photo **sans aucune action** de personne (directement au livreur) demanderait l'API WhatsApp Business de
-Meta (compte Meta Business, numéro dédié, modèles de messages validés, coût par conversation).
+**Vendeur** (onglet Commandes) : « Envoyer au livreur, avec la photo » partage la photo avec toute la commande en
+légende ; on choisit le livreur dans WhatsApp. Sans menu « Partager » : un lien vers WhatsApp avec la commande en
+texte (`wa.me/?text=`).
 
 Les fiches gardent une image d'aperçu `partage.jpg` (JPEG 1200×630, `og:image`) pour les liens partagés :
 `npm run partage` pour le catalogue de départ, fabriquée par l'admin pour les chaussures ajoutées.

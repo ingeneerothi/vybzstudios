@@ -105,17 +105,14 @@ export async function parcourir(page, { ecran, pause }) {
   await ecran("commande", "Commande en une page : le total se calcule tout seul");
   await toucher(page, page.getByRole("button", { name: /^Commander ·/ }));
   await pause(3200);
-  await ecran("validation", "Le client envoie sa commande sur WhatsApp : vous la recevez, prête à transférer");
-  // Puis la photo de la chaussure, qui arrive comme une vraie photo (pas un lien).
+  await ecran("validation", "Commande enregistrée : elle arrive toute seule sur votre WhatsApp");
+  // Le message de la boutique : une vraie photo de la chaussure (pas un lien), la commande écrite dessous.
   await page
     .locator("[role=status] img")
     .last()
     .evaluate((photo) => photo.scrollIntoView({ block: "center", behavior: "smooth" }));
   await pause(2200);
-  await ecran(
-    "photo",
-    "Puis la photo de la chaussure : une vraie photo, avec le modèle, la pointure et le n° de commande",
-  );
+  await ecran("photo", "La photo de la chaussure, avec toute la commande dessous : prête à transférer au livreur");
   await toucher(page, page.getByRole("link", { name: "Retour à la boutique" }));
   await pause(1200);
   await toucher(page, page.getByRole("link", { name: "Sur demande" }).first());

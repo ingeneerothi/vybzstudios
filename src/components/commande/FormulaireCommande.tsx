@@ -410,7 +410,8 @@ export function FormulaireCommande({ chaussure: c, zones, modePaiement, whatsapp
           code={resultat.r.code}
           lienWhatsapp={resultat.lien}
           photo={
-            c.images[0]
+            // Déjà envoyée au vendeur par le site, avec la commande : pas d'étape « photo » pour le client.
+            c.images[0] && !resultat.r.vendeurPrevenu
               ? {
                   source: c.images[0],
                   nomFichier: `${c.slug}.jpg`,

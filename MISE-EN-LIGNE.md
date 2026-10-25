@@ -1,10 +1,11 @@
-# Mettre Vertical Store en ligne — environ 20 minutes
+# Mettre Vertical Store en ligne — environ 40 minutes
 
 Le code est prêt sur GitHub (`ingeneerothi/vybzstudios`, branche `main`).
-Il reste à créer **deux comptes gratuits** et à les relier :
+Il reste à créer **trois comptes** et à les relier :
 
 - **Supabase** garde les chaussures, les commandes et les comptes du vendeur.
 - **Vercel** met le site sur internet.
+- **Meta (WhatsApp Business)** envoie chaque commande au vendeur **avec la photo de la chaussure** (étape 5).
 
 Faites-le de préférence sur un ordinateur (il y a un long texte à copier-coller à l'étape 1.3).
 Gardez cette page ouverte et cochez au fur et à mesure.
@@ -114,6 +115,98 @@ Ce script crée les tables, la sécurité, les dossiers photos, et importe les 2
 
 ---
 
+## Étape 5 — Chaque commande arrive avec la photo (20 min)
+
+Un lien WhatsApp ne peut porter que du texte : c'est une règle de WhatsApp. Pour que le vendeur reçoive **à coup sûr**
+la commande **avec une vraie photo de la chaussure** (pas un lien), le site l'envoie lui-même par l'API officielle de
+WhatsApp. Pour chaque commande, le vendeur reçoit un message de la boutique : la photo, et toute la commande écrite
+dessous, prête à transférer au livreur.
+
+Pour commencer, Meta prête un **numéro de test gratuit**, qui peut écrire à 5 numéros au plus : celui du vendeur et les
+autres numéros de l'onglet Numéros (frère, livreur…). Plus tard, la boutique peut prendre son propre numéro (une puce
+qui n'est pas déjà sur WhatsApp) ; chaque message coûte alors quelques francs CFA.
+
+### 5.1 Créer l'application WhatsApp
+
+- [ ] Allez sur **developers.facebook.com** → connectez-vous avec Facebook → **Mes apps** → **Créer une app**.
+- [ ] Nom : `Vertical Store`. Quand Meta demande ce que fera l'app, choisissez **WhatsApp**
+  (ou le type **Entreprise**, puis ajoutez le produit **WhatsApp**). Liez-la au portefeuille d'entreprise proposé
+  (ou créez-le : nom `Vertical Store`).
+- [ ] Dans l'app : **WhatsApp** → **Configuration de l'API** (*API Setup*).
+
+### 5.2 Le numéro qui envoie, et ceux qui reçoivent
+
+- [ ] Sur cette page, sous le numéro de test, copiez l'**identifiant du numéro de téléphone** (*Phone number ID*,
+  un long nombre) : c'est `WHATSAPP_NUMERO_ID`.
+- [ ] Champ **À** (*To*) → **Gérer la liste des numéros** → ajoutez **+225 05 06 52 38 16**, puis chaque autre numéro
+  de l'onglet Numéros qui peut devenir actif. Chaque numéro reçoit un code sur WhatsApp : entrez-le pour le valider.
+
+### 5.3 Le modèle de message
+
+- [ ] Allez sur **business.facebook.com** → **WhatsApp Manager** → **Modèles de messages** → **Créer un modèle**.
+  - Catégorie : **Utilitaire** (*Utility*)
+  - Nom : `nouvelle_commande`
+  - Langue : **Français**
+- [ ] **En-tête** : **Média** → **Image** (ajoutez une photo de chaussure comme exemple).
+- [ ] **Corps** : copiez **exactement** ce texte (les `{{1}}` à `{{13}}` seront remplacés par la commande) :
+
+```text
+🛒 NOUVELLE COMMANDE VERTICAL STORE — {{1}}
+👟 Chaussure : {{2}}
+📏 Pointure : {{3}}
+🔢 Quantité : {{4}}
+💰 Prix : {{5}}
+🚚 Livraison : {{6}}
+✅ TOTAL : {{7}}
+👤 Nom : {{8}}
+📞 Numéro : {{9}}
+📍 Lieu : {{10}}
+🏠 Adresse : {{11}}
+🧭 Repère : {{12}}
+💳 Paiement : {{13}}
+
+Commande passée sur le site Vertical Store.
+```
+
+- [ ] Meta demande un exemple pour chaque `{{…}}` : mettez n'importe quoi (`CMD-0001`, `Air Max 95`, `42`, `1`…).
+- [ ] **Envoyer**. Au bout de quelques minutes, le modèle passe en **Actif** (*Approuvé*).
+
+### 5.4 La clé permanente
+
+La clé affichée sur la page *API Setup* ne dure que 24 heures : il en faut une permanente.
+
+- [ ] **business.facebook.com** → **Paramètres** (de l'entreprise) → **Utilisateurs** → **Utilisateurs système** →
+  **Ajouter** : nom `site`, rôle **Admin**.
+- [ ] Sur cet utilisateur : **Attribuer des éléments** → **Apps** → `Vertical Store` → **Contrôle total**.
+- [ ] **Générer un token** → app `Vertical Store` → expiration **Jamais** → cochez `whatsapp_business_messaging` et
+  `whatsapp_business_management` → **Générer**. Copiez la clé tout de suite (elle ne sera plus affichée) :
+  c'est `WHATSAPP_JETON`. Gardez-la secrète, comme un mot de passe.
+
+### 5.5 Donner les deux valeurs au site
+
+- [ ] Vercel → projet → **Settings** → **Environment Variables** → ajoutez :
+
+| Name | Value |
+| --- | --- |
+| `WHATSAPP_JETON` | la clé permanente de l'étape 5.4 |
+| `WHATSAPP_NUMERO_ID` | l'identifiant du numéro de l'étape 5.2 |
+
+- [ ] **Deployments** → **⋯** → **Redeploy**.
+
+### 5.6 Vérifier
+
+- [ ] Faites une commande test sur le site. En quelques secondes, le WhatsApp du vendeur reçoit le message de la
+  boutique : **la photo de la chaussure, avec la commande écrite dessous**. Le client, lui, voit toujours WhatsApp
+  s'ouvrir avec son message.
+- [ ] Le message part vers le **numéro actif** (onglet Numéros de l'admin). Avec le numéro de test, ce numéro doit
+  être dans la liste de l'étape 5.2.
+
+Si l'envoi échoue un jour (clé effacée, modèle refusé…), aucune commande n'est perdue : elle est enregistrée et le
+client est guidé pour envoyer la photo lui-même depuis son téléphone. La raison s'affiche dans Vercel → projet →
+**Logs** (« envoi WhatsApp au vendeur impossible »).
+
+---
+
 ## Si quelque chose coince
 
 | Ce que vous voyez | Ce qu'il faut faire |
@@ -123,6 +216,7 @@ Ce script crée les tables, la sécurité, les dossiers photos, et importe les 2
 | « Email ou mot de passe incorrect » | Vérifiez le compte dans Supabase → **Authentication** → **Users** (créé avec **Auto Confirm User** ?). |
 | « Ce compte n'a pas accès à l'administration » | L'email n'est pas dans la liste des admins : voir `NOTES-TECHNIQUES.md`, section 6. |
 | Le lien « Mot de passe oublié » dit que le lien a expiré | Refaites la demande et ouvrez le lien sur le même téléphone, ou faites l'étape 3 (modèle d'email). |
+| Le vendeur reçoit la commande sans la photo de la boutique | Vercel → projet → **Logs** : cherchez « envoi WhatsApp au vendeur impossible ». Le plus souvent : modèle `nouvelle_commande` pas encore **Actif**, clé de 24 h au lieu de la clé permanente (étape 5.4), ou numéro actif absent de la liste du numéro de test (étape 5.2). |
 | Après une semaine sans visite, le site ne charge plus les chaussures | Le projet Supabase gratuit s'est mis en pause : Supabase → projet → **Restore project**. |
 
 ## Bon à savoir

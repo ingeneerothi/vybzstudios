@@ -123,8 +123,8 @@ Dans **Boutique**, vous pouvez aussi changer le **slogan** de l'accueil, la **ch
 
 Quand un client commande :
 1. Il remplit le formulaire sur le site.
-2. WhatsApp s'ouvre chez lui avec le message déjà écrit ; il touche **Envoyer**.
-3. Vous recevez le message sur le numéro actif. Exemple :
+2. Aussitôt, la boutique vous envoie la commande sur WhatsApp, au numéro actif : **la photo de la chaussure, avec
+   toute la commande écrite dessous**. Exemple de texte sous la photo :
 
 ```
 🛒 NOUVELLE COMMANDE VERTICAL STORE — CMD-0042
@@ -134,11 +134,11 @@ Quand un client commande :
 ✅ TOTAL : 24 000 FCFA
 ```
 
-Juste après, le client peut vous envoyer la **photo de la chaussure** : une vraie photo, avec en légende le modèle,
-la pointure et le numéro de commande (bouton « Envoyer la photo » sur son téléphone, dans la même discussion).
-Si un autre numéro que le vôtre est actif, le message commence par sa phrase (ex. « Bonjour c'est Ange »).
+3. Chez le client, WhatsApp s'ouvre avec le même message déjà écrit ; il touche **Envoyer**. Vous avez ainsi sa
+   discussion pour organiser la livraison. Si un autre numéro que le vôtre est actif, ce message commence par sa
+   phrase (ex. « Bonjour c'est Ange »).
 
-Ce message peut être **transféré tel quel au livreur**.
+Le message de la boutique (photo + commande) se **transfère tel quel au livreur** : appui long → **Transférer**.
 
 Dans l'onglet **Commandes** :
 - Les plus récentes sont en haut. Le chiffre rouge = nouvelles commandes.

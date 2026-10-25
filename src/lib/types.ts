@@ -119,6 +119,8 @@ export interface ResultatCommande {
   whatsapp: string;
   /** Phrase du numéro qui reçoit la commande, à mettre en haut du message. */
   intro?: string | null;
+  /** Le site a déjà envoyé la commande au vendeur, avec la photo (API WhatsApp Business). */
+  vendeurPrevenu?: boolean;
 }
 
 export interface SaisieDemande {

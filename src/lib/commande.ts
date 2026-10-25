@@ -1,5 +1,6 @@
 // Envoi d'une commande ou d'une demande depuis le navigateur.
-// Avec Supabase : la base vérifie tout et recalcule le prix. En démo : calcul local identique.
+// Avec Supabase : la base vérifie tout et recalcule le prix (la commande passe par le serveur du site, qui l'envoie
+// aussi au vendeur avec la photo : lib/serveur/commande.ts). En démo : calcul local identique.
 import { MODE_DEMO, urlPublique } from "./env";
 import { prixActuel } from "./prix";
 import { normaliserTelephone } from "./telephone";
@@ -7,7 +8,7 @@ import type { Chaussure, ResultatCommande, ResultatDemande, SaisieCommande, Sais
 
 export class ErreurEnvoi extends Error {}
 
-function messageErreur(erreur: { message?: string; code?: string } | null): string {
+export function messageErreur(erreur: { message?: string; code?: string } | null): string {
   if (erreur?.code === "P0001" && erreur.message) return erreur.message;
   if (erreur?.message?.toLowerCase().includes("fetch")) {
     return "Connexion impossible. Vérifiez votre réseau puis réessayez.";
@@ -24,22 +25,19 @@ export interface ContexteCommande {
 
 export async function creerCommande(s: SaisieCommande, ctx: ContexteCommande): Promise<ResultatCommande> {
   if (MODE_DEMO) return creerCommandeDemo(s, ctx);
-  const { supabaseNavigateur } = await import("./supabase/navigateur");
-  const { data, error } = await supabaseNavigateur().rpc("creer_commande", {
-    p_slug: s.slug,
-    p_pointure: s.pointure,
-    p_quantite: s.quantite,
-    p_zone_id: s.zoneId,
-    p_nom: s.nom,
-    p_telephone: s.telephone,
-    p_commune: s.commune || null,
-    p_quartier: s.quartier || null,
-    p_ville: s.ville || null,
-    p_adresse: s.adresse,
-    p_repere: s.repere || null,
-  });
-  if (error) throw new ErreurEnvoi(messageErreur(error));
-  return data as ResultatCommande;
+  let reponse: Response;
+  try {
+    reponse = await fetch("/api/commandes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(s),
+    });
+  } catch {
+    throw new ErreurEnvoi("Connexion impossible. Vérifiez votre réseau puis réessayez.");
+  }
+  const corps = (await reponse.json().catch(() => null)) as (ResultatCommande & { erreur?: string }) | null;
+  if (!reponse.ok || !corps) throw new ErreurEnvoi(corps?.erreur ?? messageErreur(null));
+  return corps;
 }
 
 async function creerCommandeDemo(s: SaisieCommande, ctx: ContexteCommande): Promise<ResultatCommande> {

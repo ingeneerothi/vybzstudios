@@ -1,15 +1,16 @@
 "use client";
 
-// Version aperçu de l'écran de validation : la même coche, puis ce que le vendeur reçoit sur WhatsApp
-// (la photo de la chaussure, puis la commande), au lieu d'ouvrir WhatsApp automatiquement.
+// Version aperçu de l'écran de validation : la même coche, puis ce que le vendeur reçoit sur WhatsApp sur le vrai
+// site, au lieu d'ouvrir WhatsApp. Commande : le message de la boutique, la photo de la chaussure avec la commande
+// écrite dessous. Demande d'article : le message du client.
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
 import { usePhotoWhatsapp } from "@/components/commande/usePhotoWhatsapp";
-import { IconeAppareilPhoto, IconeWhatsapp } from "@/components/site/Icones";
+import { IconeWhatsapp } from "@/components/site/Icones";
 import { DUREE, EASE_SORTIE } from "@/lib/motion";
-import { partagerPhoto, peutPartager } from "@/lib/partager";
+import { FIN_MESSAGE_VENDEUR } from "@/lib/whatsapp";
 
 type Props = {
   titre: string;
@@ -28,18 +29,41 @@ function messageDuLien(lien: string): string {
   }
 }
 
-function Bulle({ children }: { children: React.ReactNode }) {
+/** Le message que la boutique envoie au vendeur : celui du client, sans sa phrase d'en-tête, avec la ligne de fin. */
+function messageVendeur(message: string): string {
+  const lignes = message.split("\n");
+  return [
+    ...lignes.slice(
+      Math.max(
+        0,
+        lignes.findIndex((l) => l.startsWith("🛒")),
+      ),
+    ),
+    "",
+    FIN_MESSAGE_VENDEUR,
+  ].join("\n");
+}
+
+function Bulle({ expediteur, children }: { expediteur: string; children: React.ReactNode }) {
   return (
-    <div className="w-full rounded-[18px] rounded-tr-md bg-[#e4f2d5] p-1.5 text-left shadow-sm ring-1 ring-vert/15">
-      {children}
+    <div className="mt-4 w-full space-y-2">
+      <p className="flex items-center gap-2 px-1 text-left text-[13px] font-semibold text-vert">
+        <IconeWhatsapp className="size-4" />
+        {expediteur}
+      </p>
+      <div className="w-full rounded-[18px] rounded-tl-md bg-white p-1.5 text-left shadow-sm ring-1 ring-trait/70">
+        {children}
+      </div>
     </div>
   );
 }
 
+const TEXTE_BULLE = "px-2 py-1 text-[14px] leading-relaxed break-words whitespace-pre-wrap text-encre";
+
 export function Validation({ titre, code, lienWhatsapp, photo, onFermer }: Props) {
   const message = messageDuLien(lienWhatsapp);
   const fichier = usePhotoWhatsapp(photo?.source, photo?.nomFichier ?? "chaussure.jpg");
-  // La photo exacte qui part sur WhatsApp (même fabrication que sur le vrai site).
+  // La photo de la chaussure telle qu'elle part sur WhatsApp (même fabrication que sur le vrai site).
   const apercuPhoto = useMemo(() => (fichier ? URL.createObjectURL(fichier) : null), [fichier]);
   return (
     <motion.div
@@ -86,50 +110,39 @@ export function Validation({ titre, code, lienWhatsapp, photo, onFermer }: Props
           <p className="mt-2 text-[15px] text-gris">
             N° <span className="font-semibold text-encre tabular-nums">{code}</span>
           </p>
-          <p className="mt-6 text-[15px] text-gris">
-            Sur le vrai site, le client envoie sa commande sur WhatsApp, puis la photo. Voici ce que vous recevez&nbsp;:
-          </p>
-          <div className="mt-4 w-full space-y-2">
-            <p className="flex items-center gap-2 px-1 text-left text-[13px] font-semibold text-vert">
-              <IconeWhatsapp className="size-4" />
-              WhatsApp
-            </p>
-            <Bulle>
-              <p className="px-2 py-1 text-[14px] leading-relaxed break-words whitespace-pre-wrap text-encre">
-                {message}
+          {photo ? (
+            <>
+              <p className="mt-6 text-[15px] text-gris">
+                Sur le vrai site, la commande arrive toute seule sur votre WhatsApp, avec la photo de la
+                chaussure&nbsp;:
               </p>
-            </Bulle>
-            {photo && (
-              <Bulle>
+              <Bulle expediteur="Vertical Store">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-[13px] bg-papier">
                   {apercuPhoto ? (
-                    <Image src={apercuPhoto} alt="" fill className="object-cover" />
+                    <Image src={apercuPhoto} alt={photo.legende} fill className="object-cover" />
                   ) : (
-                    <Image src={photo.source} alt="" fill className="object-contain p-[6%]" />
+                    <Image src={photo.source} alt={photo.legende} fill className="object-contain p-[6%]" />
                   )}
                 </div>
-                <p className="px-2 pt-1.5 pb-1 text-[14px] text-encre">{photo.legende}</p>
+                <p className={`${TEXTE_BULLE} pt-2`}>{messageVendeur(message)}</p>
               </Bulle>
-            )}
-          </div>
-          <a href={lienWhatsapp} className="bouton-plein mt-8 bg-vert hover:bg-vert-fonce">
-            <IconeWhatsapp className="size-5" />
-            Ouvrir WhatsApp
-          </a>
-          {photo && peutPartager(fichier) && (
-            <button
-              type="button"
-              onClick={() => partagerPhoto(fichier, photo.legende).catch(() => false)}
-              className="bouton-contour mt-3"
-            >
-              <IconeAppareilPhoto className="size-5" />
-              Envoyer la photo
-            </button>
+            </>
+          ) : (
+            <>
+              <p className="mt-6 text-[15px] text-gris">Sur le vrai site, le client vous envoie ce message&nbsp;:</p>
+              <Bulle expediteur="Le client">
+                <p className={TEXTE_BULLE}>{message}</p>
+              </Bulle>
+              <a href={lienWhatsapp} className="bouton-plein mt-8 bg-vert hover:bg-vert-fonce">
+                <IconeWhatsapp className="size-5" />
+                Ouvrir WhatsApp
+              </a>
+            </>
           )}
           <Link
             href="/"
             onClick={onFermer}
-            className="mt-4 min-h-11 content-center text-[15px] text-gris underline underline-offset-4"
+            className="mt-6 min-h-11 content-center text-[15px] text-gris underline underline-offset-4"
           >
             Retour à la boutique
           </Link>

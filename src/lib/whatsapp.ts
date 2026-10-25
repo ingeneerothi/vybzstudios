@@ -34,27 +34,65 @@ export interface DonneesMessageCommande extends ResultatCommande {
   repere: string;
 }
 
-export function messageCommande(c: DonneesMessageCommande): string {
+const TITRE_COMMANDE = "🛒 NOUVELLE COMMANDE VERTICAL STORE —";
+const LIGNES_COMMANDE = [
+  "👟 Chaussure",
+  "📏 Pointure",
+  "🔢 Quantité",
+  "💰 Prix",
+  "🚚 Livraison",
+  "✅ TOTAL",
+  "👤 Nom",
+  "📞 Numéro",
+  "📍 Lieu",
+  "🏠 Adresse",
+  "🧭 Repère",
+  "💳 Paiement",
+];
+
+/** Les valeurs de la commande : le code, puis une valeur par ligne du message (de « Chaussure » à « Paiement »). */
+export function valeursCommande(c: DonneesMessageCommande): string[] {
   const prix =
     c.quantite > 1
       ? `${formatPrixTexte(c.prixUnitaire)} × ${c.quantite} = ${formatPrixTexte(c.prixUnitaire * c.quantite)}`
       : formatPrixTexte(c.prixUnitaire);
   return [
-    ...(c.intro ? [c.intro, ""] : []),
-    `🛒 NOUVELLE COMMANDE VERTICAL STORE — ${c.code}`,
-    `👟 Chaussure : ${c.chaussure}`,
-    `📏 Pointure : ${c.pointure}`,
-    `🔢 Quantité : ${c.quantite}`,
-    `💰 Prix : ${prix}`,
-    `🚚 Livraison : ${c.zone} (${formatPrixTexte(c.fraisLivraison)})`,
-    `✅ TOTAL : ${formatPrixTexte(c.total)}`,
-    `👤 Nom : ${c.nom}`,
-    `📞 Numéro : ${formaterTelephone(c.telephone)}`,
-    `📍 Lieu : ${c.lieu}`,
-    `🏠 Adresse : ${c.adresse}`,
-    `🧭 Repère : ${c.repere || "—"}`,
-    `💳 Paiement : ${c.modePaiement}`,
-  ].join("\n");
+    c.code,
+    c.chaussure,
+    String(c.pointure),
+    String(c.quantite),
+    prix,
+    `${c.zone} (${formatPrixTexte(c.fraisLivraison)})`,
+    formatPrixTexte(c.total),
+    c.nom,
+    formaterTelephone(c.telephone),
+    c.lieu,
+    c.adresse,
+    c.repere || "—",
+    c.modePaiement,
+  ];
+}
+
+function lignesCommande([code, ...valeurs]: string[]): string[] {
+  return [`${TITRE_COMMANDE} ${code}`, ...LIGNES_COMMANDE.map((etiquette, i) => `${etiquette} : ${valeurs[i]}`)];
+}
+
+export function messageCommande(c: DonneesMessageCommande): string {
+  return [...(c.intro ? [c.intro, ""] : []), ...lignesCommande(valeursCommande(c))].join("\n");
+}
+
+/** Dernière ligne du message que le site envoie lui-même au vendeur (un modèle WhatsApp ne finit pas par une valeur). */
+export const FIN_MESSAGE_VENDEUR = "Commande passée sur le site Vertical Store.";
+
+/** Texte du modèle « nouvelle_commande » à créer chez Meta (MISE-EN-LIGNE.md) : {{1}} à {{13}} pour les valeurs. */
+export function modeleMessageVendeur(): string {
+  const reperes = LIGNES_COMMANDE.map((_, i) => `{{${i + 2}}}`);
+  return [...lignesCommande(["{{1}}", ...reperes]), "", FIN_MESSAGE_VENDEUR].join("\n");
+}
+
+/** Ce que le vendeur lit sous la photo, dans le message envoyé par le site : le modèle rempli. */
+export function messageVendeur(c: DonneesMessageCommande): string {
+  return [...lignesCommande(valeursCommande(c)), "", FIN_MESSAGE_VENDEUR].join("\n");
 }
 
 export interface DonneesMessageDemande {
