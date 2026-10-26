@@ -1,6 +1,6 @@
 # Mettre Vertical Store en ligne — environ 40 minutes
 
-Le code est prêt sur GitHub (`ingeneerothi/vybzstudios`, branche `main`).
+Le code est prêt sur GitHub (`ingeneerothi/vertical-store`, branche `main`).
 Il reste à créer **trois comptes** et à les relier :
 
 - **Supabase** garde les chaussures, les commandes et les comptes du vendeur.
@@ -25,7 +25,7 @@ Gardez cette page ouverte et cochez au fur et à mesure.
 
 ### 1.2 Copier le script d'installation
 
-- [ ] Ouvrez cette page : <https://github.com/ingeneerothi/vybzstudios/blob/main/supabase/installation.sql>
+- [ ] Ouvrez cette page : <https://github.com/ingeneerothi/vertical-store/blob/main/supabase/installation.sql>
 - [ ] Cliquez sur l'icône **Copy raw file** (deux carrés, en haut à droite du fichier).
   Sur téléphone : bouton **Raw**, puis « Tout sélectionner » et « Copier ».
 
@@ -65,8 +65,8 @@ Ce script crée les tables, la sécurité, les dossiers photos, et importe les 2
 ## Étape 2 — Vercel (5 min)
 
 - [ ] Allez sur **vercel.com** → **Sign Up** → offre **Hobby** → **Continue with GitHub**.
-- [ ] **Add New…** → **Project** → à côté de `vybzstudios`, cliquez **Import**.
-  Si le dépôt n'apparaît pas : **Configure GitHub App** (ou *Adjust GitHub App Permissions*) → autorisez `vybzstudios`.
+- [ ] **Add New…** → **Project** → à côté de `vertical-store`, cliquez **Import**.
+  Si le dépôt n'apparaît pas : **Configure GitHub App** (ou *Adjust GitHub App Permissions*) → autorisez `vertical-store`.
 - [ ] Laissez *Framework Preset* sur **Next.js** et ne touchez pas aux commandes.
 - [ ] Dépliez **Environment Variables** et ajoutez ces deux lignes (nom à gauche, valeur à droite) :
 
@@ -78,15 +78,15 @@ Ce script crée les tables, la sécurité, les dossiers photos, et importe les 2
   Astuce : le bloc `.env` proposé par Supabase (**Connect** → **App Frameworks** → **Next.js**) peut être collé tel quel dans ce formulaire : ses noms (`…PUBLISHABLE_KEY`, `…PUBLISHABLE_DEFAULT_KEY`) sont aussi acceptés.
 
 - [ ] **Deploy**. Au bout de 2 à 3 minutes : **Congratulations!**
-- [ ] Cliquez **Continue to Dashboard** et notez l'adresse du site sous **Domains**, par exemple `https://vybzstudios.vercel.app`.
+- [ ] Cliquez **Continue to Dashboard** et notez l'adresse du site sous **Domains**, par exemple `https://vertical-store.vercel.app`.
 
 ---
 
 ## Étape 3 — Relier Supabase au site (2 min)
 
 - [ ] Supabase → **Authentication** → **URL Configuration** :
-  - *Site URL* : l'adresse de l'étape 2 (ex. `https://vybzstudios.vercel.app`) → **Save**
-  - *Redirect URLs* → **Add URL** : la même adresse suivie de `/**` (ex. `https://vybzstudios.vercel.app/**`) → **Save**
+  - *Site URL* : l'adresse de l'étape 2 (ex. `https://vertical-store.vercel.app`) → **Save**
+  - *Redirect URLs* → **Add URL** : la même adresse suivie de `/**` (ex. `https://vertical-store.vercel.app/**`) → **Save**
 - [ ] Recommandé, pour que « Mot de passe oublié » marche même si l'email est ouvert sur un autre appareil :
   **Authentication** → **Emails** → **Reset Password** → remplacez tout le contenu du message par :
 
@@ -103,7 +103,7 @@ Ce script crée les tables, la sécurité, les dossiers photos, et importe les 2
 
 - [ ] Sur un téléphone, ouvrez l'adresse du site : accueil, collection, une fiche produit.
 - [ ] Faites une **commande test** (n'importe quelle chaussure, votre vrai numéro) → WhatsApp s'ouvre vers **+225 05 06 52 38 16** avec la commande `CMD-0001`. Inutile de l'envoyer.
-- [ ] Ouvrez **l'adresse du site + `/admin`** (ex. `https://vybzstudios.vercel.app/admin`) → connectez-vous avec `angebattey.616@gmail.com`.
+- [ ] Ouvrez **l'adresse du site + `/admin`** (ex. `https://vertical-store.vercel.app/admin`) → connectez-vous avec `angebattey.616@gmail.com`.
   Il ne doit **pas** y avoir de bandeau vert « Mode démo » en haut.
 - [ ] Onglet **Commandes** : la commande test est là → touchez **Annulée**.
 - [ ] Installez l'admin sur le téléphone du vendeur :

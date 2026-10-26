@@ -159,13 +159,13 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 ### 5.1 GitHub
 
-Le code est dans le dépôt `ingeneerothi/vybzstudios`. Vercel met en production la branche principale (`main`) :
+Le code est dans le dépôt privé `ingeneerothi/vertical-store`. Vercel met en production la branche principale (`main`) :
 chaque modification fusionnée dans `main` est mise en ligne automatiquement.
 
 ### 5.2 Vercel
 
 1. Créez un compte sur [vercel.com](https://vercel.com) avec **Continue with GitHub**.
-2. **Add New…** → **Project** → choisissez `vybzstudios` → **Import** (autorisez l'accès au dépôt si Vercel le demande).
+2. **Add New…** → **Project** → choisissez `vertical-store` → **Import** (autorisez l'accès au dépôt si Vercel le demande).
 3. *Framework Preset* : **Next.js** (détecté). Ne changez pas les commandes.
 4. Dépliez **Environment Variables** et ajoutez :
 
